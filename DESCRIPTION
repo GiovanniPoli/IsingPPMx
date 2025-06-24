@@ -1,0 +1,22 @@
+Package: IsingGraph
+Type: Package
+Date: 2024-12-17
+Title: Bayesian Discrete Random Graph with Covariate Dependent Partitions
+Version: 0.1
+License: GPL (>= 3)
+LinkingTo: Rcpp, RcppArmadillo, RcppDist
+Depends: R (>= 3.5.0), Rcpp (>= 1.0.9), RcppArmadillo, RcppDist
+Authors@R: c(person("Giovanni", "Poli", , "giovanni.poli@unifi.it", role = c("aut", "cre", "cph"),
+           comment = c(ORCID = "1234-1234-1234-1234")))
+Description: The package allows for clustering Graphs with binary obesrvations in R.
+  It provides a comprehensive set of functions and algorithms tailored specifically for the 
+  challenges posed by discrete random graphs.
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.1
+Encoding: UTF-8
+NeedsCompilation: yes
+Author: Giovanni Poli [aut, cre, cph] (<https://orcid.org/1234-1234-1234-1234>)
+Maintainer: Giovanni Poli <giovanni.poli@unifi.it>
+Suggests: testthat (>= 3.0.0)
+Config/testthat/edition: 3
+LazyData: true
