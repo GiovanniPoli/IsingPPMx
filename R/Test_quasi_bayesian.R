@@ -255,7 +255,7 @@ if(FALSE){
   replicas = list()
 
 
-  for(BB in c( seq(from = 1, to = 2, by = .25), 3, 5, 10 ) ){
+  for(BB in c( seq(from = 1, to = 2, by = .25), 10 ) ){
 
     n = 15
     a =  c( rbinom(n,1, .5))
@@ -265,7 +265,6 @@ if(FALSE){
               rbinom(n,1,.5),rbinom(n,1,.5),rbinom(n,1,.5),
               rbinom(n,1,.5),rbinom(n,1,.5),rbinom(n,1,.5))
 
-    a = b= c()
     P = 15
     p = 0
     gamma = diag(rep(0,P))
@@ -287,9 +286,9 @@ if(FALSE){
 
           pi_slab = 1.0 - ppois(  sum(gamma[,1+p]) , 1 )
 
-          b = c(b, IsingGraph::w_cpp_update_Omega( gamma, omega, p, ytilde, Xtilde, 1, 1))
-          a = c(a, IsingGraph::w_variable_selection_step_v2( gamma, omega, p, ytilde, Xtilde, 10, 10, pi_slab,
-                                                         BB ))
+          IsingGraph::w_cpp_update_Omega( gamma, omega, p, ytilde, Xtilde, 1, 1)
+          IsingGraph::w_variable_selection_step_v2( gamma, omega, p, ytilde, Xtilde, 10, 10, pi_slab,
+                                                         BB )
 
         }
 
