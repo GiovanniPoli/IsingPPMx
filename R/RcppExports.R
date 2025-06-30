@@ -25,8 +25,20 @@ bayes_logit <- function(y, X, b0, B0, bstart, sample, burn = 0L, thinning = 1L) 
     .Call(`_IsingGraph_bayes_logit`, y, X, b0, B0, bstart, sample, burn, thinning)
 }
 
-quasi_Ising <- function(y, X, var_int, var_coef, pi_slab, sample, burn = 0L, thinning = 1L) {
-    .Call(`_IsingGraph_quasi_Ising`, y, X, var_int, var_coef, pi_slab, sample, burn, thinning)
+quasi_Ising <- function(X, var_int, var_coef, par_pi, a, b, sample, burn = 0L, thinning = 1L) {
+    .Call(`_IsingGraph_quasi_Ising`, X, var_int, var_coef, par_pi, a, b, sample, burn, thinning)
+}
+
+add_edge_loss_prob <- function(pois_par, n_active, base_prob) {
+    .Call(`_IsingGraph_add_edge_loss_prob`, pois_par, n_active, base_prob)
+}
+
+cohesion <- function(pois_par, n_active) {
+    .Call(`_IsingGraph_cohesion`, pois_par, n_active)
+}
+
+gX <- function(X, rho) {
+    .Call(`_IsingGraph_gX`, X, rho)
 }
 
 cpp_mvrnormArma1 <- function(mu, sigma) {
@@ -46,14 +58,14 @@ rpg <- function(z, trunc = 200L) {
 }
 
 w_variable_selection_step <- function(gamma, omega, p, y, X, var_int, var_coef, pi_slab) {
-    .Call(`_IsingGraph_w_variable_selection_step`, gamma, omega, p, y, X, var_int, var_coef, pi_slab)
+    invisible(.Call(`_IsingGraph_w_variable_selection_step`, gamma, omega, p, y, X, var_int, var_coef, pi_slab))
 }
 
-w_variable_selection_step_v2 <- function(gamma, omega, p, y, X, var_int, var_coef, pi_slab, beta) {
-    .Call(`_IsingGraph_w_variable_selection_step_v2`, gamma, omega, p, y, X, var_int, var_coef, pi_slab, beta)
+w_variable_selection_step_v2 <- function(gamma, omega, p, y, X, edges, var_int, var_coef, pi_slab, par_pi, a, b) {
+    invisible(.Call(`_IsingGraph_w_variable_selection_step_v2`, gamma, omega, p, y, X, edges, var_int, var_coef, pi_slab, par_pi, a, b))
 }
 
-w_cpp_update_Omega <- function(gamma, omega, p, y, X, pi_slab, var_slab) {
-    .Call(`_IsingGraph_w_cpp_update_Omega`, gamma, omega, p, y, X, pi_slab, var_slab)
+w_cpp_update_Omega <- function(gamma, omega, p, y, X, var_slab, var_int) {
+    invisible(.Call(`_IsingGraph_w_cpp_update_Omega`, gamma, omega, p, y, X, var_slab, var_int))
 }
 

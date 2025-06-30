@@ -257,6 +257,8 @@ if(FALSE){
 
   for(BB in c( seq(from = 1, to = 2, by = .25), 10 ) ){
 
+    BB = 2.0
+
     n = 15
     a =  c( rbinom(n,1, .5))
     X = cbind(a,1-a, rbinom(n,1,.5),
@@ -267,7 +269,7 @@ if(FALSE){
 
     P = 15
     p = 0
-    gamma = diag(rep(0,P))
+    gamma = diag(rep(1,P))
     gamma[1,2] = gamma[2,1] = 0
 
     omega = matrix(rnorm(P^2,sd = .1), ncol = P, nrow = P) * gamma
@@ -287,8 +289,7 @@ if(FALSE){
           pi_slab = 1.0 - ppois(  sum(gamma[,1+p]) , 1 )
 
           IsingGraph::w_cpp_update_Omega( gamma, omega, p, ytilde, Xtilde, 1, 1)
-          IsingGraph::w_variable_selection_step_v2( gamma, omega, p, ytilde, Xtilde, 10, 10, pi_slab,
-                                                         BB )
+          IsingGraph::w_variable_selection_step_v2( gamma, omega, p, ytilde, Xtilde, 10, 10, pi_slab, BB )
 
         }
 
@@ -297,6 +298,10 @@ if(FALSE){
       omega_sum = omega_sum + omega
       }
     }
+      ret = IsingGraph::quasi_Ising(X, 1,1, 0.1,1000,1000,10)
+
+
+
       GRAPHS[[as.character(replica)]] =   gamma_sum / 10000
 
     }

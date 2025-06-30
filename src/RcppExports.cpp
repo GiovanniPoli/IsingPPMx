@@ -102,20 +102,58 @@ BEGIN_RCPP
 END_RCPP
 }
 // quasi_Ising
-Rcpp::List quasi_Ising(const arma::colvec& y, const arma::mat& X, const double var_int, const double var_coef, const double pi_slab, const int sample, const int burn, const int thinning);
-RcppExport SEXP _IsingGraph_quasi_Ising(SEXP ySEXP, SEXP XSEXP, SEXP var_intSEXP, SEXP var_coefSEXP, SEXP pi_slabSEXP, SEXP sampleSEXP, SEXP burnSEXP, SEXP thinningSEXP) {
+Rcpp::List quasi_Ising(const arma::mat& X, const double var_int, const double var_coef, const double par_pi, const double a, const double b, const int sample, const int burn, const int thinning);
+RcppExport SEXP _IsingGraph_quasi_Ising(SEXP XSEXP, SEXP var_intSEXP, SEXP var_coefSEXP, SEXP par_piSEXP, SEXP aSEXP, SEXP bSEXP, SEXP sampleSEXP, SEXP burnSEXP, SEXP thinningSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const arma::colvec& >::type y(ySEXP);
     Rcpp::traits::input_parameter< const arma::mat& >::type X(XSEXP);
     Rcpp::traits::input_parameter< const double >::type var_int(var_intSEXP);
     Rcpp::traits::input_parameter< const double >::type var_coef(var_coefSEXP);
-    Rcpp::traits::input_parameter< const double >::type pi_slab(pi_slabSEXP);
+    Rcpp::traits::input_parameter< const double >::type par_pi(par_piSEXP);
+    Rcpp::traits::input_parameter< const double >::type a(aSEXP);
+    Rcpp::traits::input_parameter< const double >::type b(bSEXP);
     Rcpp::traits::input_parameter< const int >::type sample(sampleSEXP);
     Rcpp::traits::input_parameter< const int >::type burn(burnSEXP);
     Rcpp::traits::input_parameter< const int >::type thinning(thinningSEXP);
-    rcpp_result_gen = Rcpp::wrap(quasi_Ising(y, X, var_int, var_coef, pi_slab, sample, burn, thinning));
+    rcpp_result_gen = Rcpp::wrap(quasi_Ising(X, var_int, var_coef, par_pi, a, b, sample, burn, thinning));
+    return rcpp_result_gen;
+END_RCPP
+}
+// add_edge_loss_prob
+double add_edge_loss_prob(double pois_par, int n_active, double base_prob);
+RcppExport SEXP _IsingGraph_add_edge_loss_prob(SEXP pois_parSEXP, SEXP n_activeSEXP, SEXP base_probSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< double >::type pois_par(pois_parSEXP);
+    Rcpp::traits::input_parameter< int >::type n_active(n_activeSEXP);
+    Rcpp::traits::input_parameter< double >::type base_prob(base_probSEXP);
+    rcpp_result_gen = Rcpp::wrap(add_edge_loss_prob(pois_par, n_active, base_prob));
+    return rcpp_result_gen;
+END_RCPP
+}
+// cohesion
+double cohesion(double pois_par, int n_active);
+RcppExport SEXP _IsingGraph_cohesion(SEXP pois_parSEXP, SEXP n_activeSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< double >::type pois_par(pois_parSEXP);
+    Rcpp::traits::input_parameter< int >::type n_active(n_activeSEXP);
+    rcpp_result_gen = Rcpp::wrap(cohesion(pois_par, n_active));
+    return rcpp_result_gen;
+END_RCPP
+}
+// gX
+double gX(double X, int rho);
+RcppExport SEXP _IsingGraph_gX(SEXP XSEXP, SEXP rhoSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< double >::type X(XSEXP);
+    Rcpp::traits::input_parameter< int >::type rho(rhoSEXP);
+    rcpp_result_gen = Rcpp::wrap(gX(X, rho));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -167,10 +205,9 @@ BEGIN_RCPP
 END_RCPP
 }
 // w_variable_selection_step
-std::string w_variable_selection_step(arma::mat& gamma, arma::mat& omega, const int p, const arma::colvec& y, const arma::mat& X, const double var_int, const double var_coef, const double pi_slab);
+void w_variable_selection_step(arma::mat& gamma, arma::mat& omega, const int p, const arma::colvec& y, const arma::mat& X, const double var_int, const double var_coef, const double pi_slab);
 RcppExport SEXP _IsingGraph_w_variable_selection_step(SEXP gammaSEXP, SEXP omegaSEXP, SEXP pSEXP, SEXP ySEXP, SEXP XSEXP, SEXP var_intSEXP, SEXP var_coefSEXP, SEXP pi_slabSEXP) {
 BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< arma::mat& >::type gamma(gammaSEXP);
     Rcpp::traits::input_parameter< arma::mat& >::type omega(omegaSEXP);
@@ -180,44 +217,45 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const double >::type var_int(var_intSEXP);
     Rcpp::traits::input_parameter< const double >::type var_coef(var_coefSEXP);
     Rcpp::traits::input_parameter< const double >::type pi_slab(pi_slabSEXP);
-    rcpp_result_gen = Rcpp::wrap(w_variable_selection_step(gamma, omega, p, y, X, var_int, var_coef, pi_slab));
-    return rcpp_result_gen;
+    w_variable_selection_step(gamma, omega, p, y, X, var_int, var_coef, pi_slab);
+    return R_NilValue;
 END_RCPP
 }
 // w_variable_selection_step_v2
-std::string w_variable_selection_step_v2(arma::mat& gamma, arma::mat& omega, const int p, const arma::colvec& y, const arma::mat& X, const double var_int, const double var_coef, const double pi_slab, const double beta);
-RcppExport SEXP _IsingGraph_w_variable_selection_step_v2(SEXP gammaSEXP, SEXP omegaSEXP, SEXP pSEXP, SEXP ySEXP, SEXP XSEXP, SEXP var_intSEXP, SEXP var_coefSEXP, SEXP pi_slabSEXP, SEXP betaSEXP) {
+void w_variable_selection_step_v2(arma::mat& gamma, arma::mat& omega, const int p, const arma::colvec& y, const arma::mat& X, int& edges, const double var_int, const double var_coef, const double pi_slab, const double par_pi, const double a, const double b);
+RcppExport SEXP _IsingGraph_w_variable_selection_step_v2(SEXP gammaSEXP, SEXP omegaSEXP, SEXP pSEXP, SEXP ySEXP, SEXP XSEXP, SEXP edgesSEXP, SEXP var_intSEXP, SEXP var_coefSEXP, SEXP pi_slabSEXP, SEXP par_piSEXP, SEXP aSEXP, SEXP bSEXP) {
 BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< arma::mat& >::type gamma(gammaSEXP);
     Rcpp::traits::input_parameter< arma::mat& >::type omega(omegaSEXP);
     Rcpp::traits::input_parameter< const int >::type p(pSEXP);
     Rcpp::traits::input_parameter< const arma::colvec& >::type y(ySEXP);
     Rcpp::traits::input_parameter< const arma::mat& >::type X(XSEXP);
+    Rcpp::traits::input_parameter< int& >::type edges(edgesSEXP);
     Rcpp::traits::input_parameter< const double >::type var_int(var_intSEXP);
     Rcpp::traits::input_parameter< const double >::type var_coef(var_coefSEXP);
     Rcpp::traits::input_parameter< const double >::type pi_slab(pi_slabSEXP);
-    Rcpp::traits::input_parameter< const double >::type beta(betaSEXP);
-    rcpp_result_gen = Rcpp::wrap(w_variable_selection_step_v2(gamma, omega, p, y, X, var_int, var_coef, pi_slab, beta));
-    return rcpp_result_gen;
+    Rcpp::traits::input_parameter< const double >::type par_pi(par_piSEXP);
+    Rcpp::traits::input_parameter< const double >::type a(aSEXP);
+    Rcpp::traits::input_parameter< const double >::type b(bSEXP);
+    w_variable_selection_step_v2(gamma, omega, p, y, X, edges, var_int, var_coef, pi_slab, par_pi, a, b);
+    return R_NilValue;
 END_RCPP
 }
 // w_cpp_update_Omega
-std::string w_cpp_update_Omega(const arma::mat& gamma, arma::mat& omega, const int p, const arma::colvec& y, const arma::mat& X, const double pi_slab, const double var_slab);
-RcppExport SEXP _IsingGraph_w_cpp_update_Omega(SEXP gammaSEXP, SEXP omegaSEXP, SEXP pSEXP, SEXP ySEXP, SEXP XSEXP, SEXP pi_slabSEXP, SEXP var_slabSEXP) {
+void w_cpp_update_Omega(const arma::mat& gamma, arma::mat& omega, const int p, const arma::colvec& y, const arma::mat& X, const double var_slab, const double var_int);
+RcppExport SEXP _IsingGraph_w_cpp_update_Omega(SEXP gammaSEXP, SEXP omegaSEXP, SEXP pSEXP, SEXP ySEXP, SEXP XSEXP, SEXP var_slabSEXP, SEXP var_intSEXP) {
 BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const arma::mat& >::type gamma(gammaSEXP);
     Rcpp::traits::input_parameter< arma::mat& >::type omega(omegaSEXP);
     Rcpp::traits::input_parameter< const int >::type p(pSEXP);
     Rcpp::traits::input_parameter< const arma::colvec& >::type y(ySEXP);
     Rcpp::traits::input_parameter< const arma::mat& >::type X(XSEXP);
-    Rcpp::traits::input_parameter< const double >::type pi_slab(pi_slabSEXP);
     Rcpp::traits::input_parameter< const double >::type var_slab(var_slabSEXP);
-    rcpp_result_gen = Rcpp::wrap(w_cpp_update_Omega(gamma, omega, p, y, X, pi_slab, var_slab));
-    return rcpp_result_gen;
+    Rcpp::traits::input_parameter< const double >::type var_int(var_intSEXP);
+    w_cpp_update_Omega(gamma, omega, p, y, X, var_slab, var_int);
+    return R_NilValue;
 END_RCPP
 }
 
@@ -228,13 +266,16 @@ static const R_CallMethodDef CallEntries[] = {
     {"_IsingGraph_log_likelihood_ratio_swap", (DL_FUNC) &_IsingGraph_log_likelihood_ratio_swap, 6},
     {"_IsingGraph_log_likelihood_ratio_swap_v2", (DL_FUNC) &_IsingGraph_log_likelihood_ratio_swap_v2, 6},
     {"_IsingGraph_bayes_logit", (DL_FUNC) &_IsingGraph_bayes_logit, 8},
-    {"_IsingGraph_quasi_Ising", (DL_FUNC) &_IsingGraph_quasi_Ising, 8},
+    {"_IsingGraph_quasi_Ising", (DL_FUNC) &_IsingGraph_quasi_Ising, 9},
+    {"_IsingGraph_add_edge_loss_prob", (DL_FUNC) &_IsingGraph_add_edge_loss_prob, 3},
+    {"_IsingGraph_cohesion", (DL_FUNC) &_IsingGraph_cohesion, 2},
+    {"_IsingGraph_gX", (DL_FUNC) &_IsingGraph_gX, 2},
     {"_IsingGraph_cpp_mvrnormArma1", (DL_FUNC) &_IsingGraph_cpp_mvrnormArma1, 2},
     {"_IsingGraph_cpp_polyagamma_h1_truncated", (DL_FUNC) &_IsingGraph_cpp_polyagamma_h1_truncated, 2},
     {"_IsingGraph_cpp_polyagamma_h1_devroye", (DL_FUNC) &_IsingGraph_cpp_polyagamma_h1_devroye, 1},
     {"_IsingGraph_rpg", (DL_FUNC) &_IsingGraph_rpg, 2},
     {"_IsingGraph_w_variable_selection_step", (DL_FUNC) &_IsingGraph_w_variable_selection_step, 8},
-    {"_IsingGraph_w_variable_selection_step_v2", (DL_FUNC) &_IsingGraph_w_variable_selection_step_v2, 9},
+    {"_IsingGraph_w_variable_selection_step_v2", (DL_FUNC) &_IsingGraph_w_variable_selection_step_v2, 12},
     {"_IsingGraph_w_cpp_update_Omega", (DL_FUNC) &_IsingGraph_w_cpp_update_Omega, 7},
     {NULL, NULL, 0}
 };
