@@ -3,7 +3,7 @@ Type: Package
 Title: Bayesian Discrete Random Graph with Covariate Dependent Partitions and Covariates
 Description: The package allows for clustering Graphs with binary obesrvations in R.
   It provides a comprehensive set of functions and algorithms tailored specifically for the 
-  challenges posed by discrete random graphs data.
+  challenges posed by discrete and heterogenius random graphs data.
 Date: 2024-12-17
 Version: 1.1.0
 License: GPL (>= 3)
