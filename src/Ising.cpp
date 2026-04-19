@@ -11,62 +11,17 @@ using namespace Rcpp ;
 
 // [[Rcpp::depends(RcppArmadillo, RcppDist)]]
 
-
-
-
-// =============================================================================
-// Ising_pseudolikelihood.cpp
-// -----------------------------------------------------------------------------
-// Quasi-Ising log pseudo-likelihood.
-//
-// Two C++ backends compute the same quantity under different parametrisations.
-// Both are exported with a leading dot in the R name (".cpp_pseudo_ll_*") so
-// they are callable from the R wrapper but are NOT added to the package
-// NAMESPACE and do not appear in user-visible documentation.
-//
-// The R-visible entry point is `pseudo_ll()`, a polymorphic dispatcher that
-// selects the backend based on the named arguments:
-//
-//   pseudo_ll(Y, Omega = Om)              # -> .cpp_pseudo_ll_Omega
-//   pseudo_ll(Y, alpha = a, Beta = B)     # -> .cpp_pseudo_ll_alpha_beta
-//
-// The two parametrisations are related by:
-//   alpha_r    = Omega(r, r)
-//   beta_{r,c} = Omega(r, c)  for r != c
-// so both backends return the same value for equivalent inputs.
-// =============================================================================
-
-// [[Rcpp::depends(RcppArmadillo)]]
-#include <RcppArmadillo.h>
-
-
-// -----------------------------------------------------------------------------
-// .cpp_pseudo_ll_Omega   (INTERNAL)
-// -----------------------------------------------------------------------------
-// Phi(i,r) = Omega(r,r) + sum_{c != r} Omega(r,c) * y_{c,i}
-// log PL   = sum_{i,r} [ y_{r,i} * Phi(i,r) - log(1 + exp(Phi(i,r))) ]
-// -----------------------------------------------------------------------------
-// [[Rcpp::export(name = ".cpp_pseudo_ll_Omega")]]
+// [[Rcpp::export]]
 double cpp_pseudo_ll_Omega( const arma::mat & Y,
                             const arma::mat & Omega ) {
-
   const arma::rowvec diag_Omega = Omega.diag().t();
-
-  arma::mat Phi = Y * Omega.t();        // includes spurious y_{r,i} * Omega(r,r)
-  Phi.each_row() += diag_Omega;         // add intercept
-  Phi -= Y.each_row() % diag_Omega;     // remove the spurious diagonal term
-
+  arma::mat Phi = Y * Omega.t();
+  Phi            -= Y.each_row() % diag_Omega;
+  Phi.each_row() += diag_Omega;
   return arma::accu( Y % Phi - arma::log1p(arma::exp(Phi)) );
 }
 
-
-// -----------------------------------------------------------------------------
-// .cpp_pseudo_ll_alpha_beta   (INTERNAL)
-// -----------------------------------------------------------------------------
-// Phi(i,r) = alpha_r + sum_{c != r} Beta(r,c) * y_{c,i}
-// Relies on Beta having zero diagonal.
-// -----------------------------------------------------------------------------
-// [[Rcpp::export(name = ".cpp_pseudo_ll_alpha_beta")]]
+// [[Rcpp::export]]
 double cpp_pseudo_ll_alpha_beta( const arma::mat    & Y,
                                  const arma::colvec & alpha,
                                  const arma::mat    & Beta ) {
@@ -78,7 +33,81 @@ double cpp_pseudo_ll_alpha_beta( const arma::mat    & Y,
 }
 
 
+// [[Rcpp::export]]
+double cpp_ll_ratio_global_flip(
+    const arma::mat & YY,
+    const arma::mat & Beta, const arma::colvec & alpha,
+    const arma::uword n1, const arma::uvec   & mapping_n1,
+    const arma::uword n2, const arma::uvec   & mapping_n2,
+    const double beta_new_n1n2, const double beta_new_n2n1 ) {
 
+  const arma::uvec pos_n1 = {n1};
+  const arma::uvec pos_n2 = {n2};
+
+  const arma::colvec psi_n1_old = YY.cols(mapping_n1) * Beta.submat(mapping_n1, pos_n1) + alpha(n1);
+  const arma::colvec psi_n2_old = YY.cols(mapping_n2) * Beta.submat(mapping_n2, pos_n2) + alpha(n2);
+
+  const arma::colvec psi_n1_new = psi_n1_old + beta_new_n1n2 * YY.col(n2);
+  const arma::colvec psi_n2_new = psi_n2_old + beta_new_n2n1 * YY.col(n1);
+
+
+  return arma::sum( YY.col(n1) % (psi_n1_new - psi_n1_old)
+                      - arma::log1p(arma::exp(psi_n1_new))
+                      + arma::log1p(arma::exp(psi_n1_old)) )
+       + arma::sum( YY.col(n2) % (psi_n2_new - psi_n2_old)
+                      - arma::log1p(arma::exp(psi_n2_new))
+                      + arma::log1p(arma::exp(psi_n2_old)) );
+}
+
+
+// [[Rcpp::export]]
+double cpp_ll_ratio_global_swap(
+    const arma::mat  & Y,
+    const arma::mat  & Omega,
+    const arma::uvec & pair01,
+    const arma::uvec & pair23,
+    const double beta_new_pos0,
+    const arma::uvec & indx0,
+    const double beta_new_pos1,
+    const arma::uvec & indx1,
+    const double beta_new_pos2,
+    const arma::uvec & indx2,
+    const double beta_new_pos3,
+    const arma::uvec & indx3) {
+
+
+  arma::colvec changed_betas = { beta_new_pos0, beta_new_pos1,
+                                 beta_new_pos2, beta_new_pos3 };
+  std::vector<arma::uvec> idx_list ;
+  idx_list.reserve(4) ;
+  idx_list.emplace_back(indx0);
+  idx_list.emplace_back(indx1);
+  idx_list.emplace_back(indx2);
+  idx_list.emplace_back(indx3);
+
+  std::vector<std::tuple<int, arma::uvec, arma::colvec, arma::uvec>> map = map_pairs_into_regs( pair01, pair23, changed_betas,idx_list);
+
+  double ll = 0 ;
+  for( std::size_t i = 0; i < map.size(); ++i){
+    arma::uword  n1  = std::get<0>(map[i]) ;
+    arma::uvec   node = {n1};
+    arma::uvec   & to_change   = std::get<1>(map[i]); // len: 1 or 2
+    arma::colvec & new_betas   = std::get<2>(map[i]);
+    arma::uvec   & idx_active  = std::get<3>(map[i]);
+
+    auto & tildey       = Y.col( n1 ) ;
+    auto & beta_old_all = Omega.submat(idx_active, node);
+    auto & beta_old_ch  = Omega.submat(to_change, node) ;
+    arma::mat tildeX  = Y.cols(idx_active);
+    tildeX.cols( arma::find(idx_active == n1)).fill(1) ;
+
+    arma::colvec XB = tildeX * beta_old_all ;
+    arma::colvec delta = Y.cols(to_change) * (new_betas - beta_old_ch) ;
+    ll +=arma::accu( Y.col(n1) % delta - arma::log1p( arma::exp(XB + delta) ) + arma::log1p( arma::exp(XB) ));
+  }
+
+  return ll;
+}
 
 
 // [[Rcpp::export]]

@@ -28,48 +28,25 @@
 #' }
 #'
 #' @export
-qIsing <- function(Y, ... , log = FALSE) {
+qIsing = function(Y, Omega, alpha = NULL, log = TRUE) {
 
-  args <- list(...)
+  if (!is.matrix(Y) || !all(Y %in% c(0, 1))) stop("Y must be a binary matrix with entries in {0, 1}.")
+  P = ncol(Y)
 
-  if (!is.matrix(Y) || !all(Y %in% c(0, 1)))
-    stop("Y must be a binary matrix.")
-
-  has_Omega <- "Omega" %in% names(args)
-  has_ab    <- all(c("alpha", "Beta") %in% names(args))
-
-  if (has_Omega && has_ab)
-    stop("Supply either 'Omega' OR ('alpha' and 'Beta'), not both.")
-  if (!has_Omega && !has_ab)
-    stop("Supply either 'Omega' or both 'alpha' and 'Beta'.")
-
-  P <- ncol(Y)
-
-  if (has_Omega) {
-    Omega <- args$Omega
-    if (!is.matrix(Omega) || any(dim(Omega) != c(P, P)))
-      stop("'Omega' must be a (P x P) matrix.")
-    ret =  .cpp_pseudo_ll_Omega(Y, Omega)
-  }else{
-      alpha <- args$alpha
-      Beta  <- args$Beta
-    if (length(alpha) != P)
-      stop("'alpha' must have length P = ncol(Y).")
-    if (!is.matrix(Beta) || any(dim(Beta) != c(P, P)))
-      stop("'Beta' must be a (P x P) matrix.")
-    if (any(diag(Beta) != 0)){
-      diag(Beta) = 0
-      warning("'Beta' has non-zero diagonal entries")
+  if (!is.matrix(Omega) || any(dim(Omega) != c(P, P))) stop("'Omega' must be a (P x P) matrix.")
+  if (is.null(alpha)) {
+    ret = cpp_pseudo_ll_Omega(Y, Omega)
+  } else {
+    if (length(alpha) != P) stop("'alpha' must have length P = ncol(Y).")
+    if (any(diag(Omega) != 0)) {
+      diag(Omega) = 0
+      warning("'Omega' had non-zero diagonal entries; they were set to 0.")
     }
-    ret = .cpp_pseudo_ll_alpha_beta(Y, alpha, Beta)
+    ret = cpp_pseudo_ll_alpha_beta(Y, alpha, Omega)
   }
-  if(log){
-    return(ret)
-  }else{
-    return(exp(ret))
-  }
-}
 
+  if (log) ret else exp(ret)
+}
 
 
 
@@ -90,25 +67,25 @@ if(FALSE){
   }
 
   # Input:
-    p       <- 25  # Number of nodes
-    M       <- p * (p-1) / 2
+    p       = 25  # Number of nodes
+    M       = p * (p-1) / 2
 
-    nSample <- 100 # Number of samples
+    nSample = 100 # Number of samples
 
-    Graph  <- matrix( sample(0:1,p^2, TRUE, prob = c(0.99, 0.01)), p, p) * rnorm(p^2) *5
-    Graph1 <- (Graph + t(Graph))
-    Graph  <- matrix(sample(0:1,p^2,TRUE,prob = c(0.99, 0.01)),p,p) * rnorm(p^2) * 5
-    Graph2 <- (Graph + t(Graph))
+    Graph  = matrix( sample(0:1,p^2, TRUE, prob = c(0.99, 0.01)), p, p) * rnorm(p^2) *5
+    Graph1 = (Graph + t(Graph))
+    Graph  = matrix(sample(0:1,p^2,TRUE,prob = c(0.99, 0.01)),p,p) * rnorm(p^2) * 5
+    Graph2 = (Graph + t(Graph))
 
-    diag(Graph1) <- diag(Graph2) <- 0
-    Thresholds1  <- - rowSums(Graph1) / 2
-    Thresholds2  <- - rowSums(Graph2) / 2
+    diag(Graph1) = diag(Graph2) = 0
+    Thresholds1  = - rowSums(Graph1) / 2
+    Thresholds2  = - rowSums(Graph2) / 2
 
-    Beta         <- 1
-    Resp         <- c(0L,1L)
+    Beta         = 1
+    Resp         = c(0L,1L)
 
-    Data1 <- IsingSampler(nSample, Graph1, Thresholds1)
-    Data2 <- IsingSampler(nSample, Graph2, Thresholds2)
+    Data1 = IsingSampler(nSample, Graph1, Thresholds1)
+    Data2 = IsingSampler(nSample, Graph2, Thresholds2)
 
     data = rbind(Data1, Data2)
 
@@ -120,14 +97,14 @@ if(FALSE){
       t0 = Sys.time()
 
       # Pseudolikelihood:
-      resPL         <-  EstimateIsing( rbind(Data1, Data2), method = "pl")
-      resPL_oracle1 <-  EstimateIsing( Data1, method = "pl")
-      resPL_oracle2 <-  EstimateIsing( Data2, method = "pl")
+      resPL         =  EstimateIsing( rbind(Data1, Data2), method = "pl")
+      resPL_oracle1 =  EstimateIsing( Data1, method = "pl")
+      resPL_oracle2 =  EstimateIsing( Data2, method = "pl")
 
       # Ising Lasso
-      lasso_resPL         <-  IsingFit( data )
-      lasso_resPL_oracle1 <-  IsingFit( Data1 )
-      lasso_resPL_oracle2 <-  IsingFit( Data2 )
+      lasso_resPL         =  IsingFit( data )
+      lasso_resPL_oracle1 =  IsingFit( Data1 )
+      lasso_resPL_oracle2 =  IsingFit( Data2 )
     }
     fhetmap( lasso_resPL$weiadj )
 

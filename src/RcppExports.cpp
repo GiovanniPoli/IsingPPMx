@@ -36,6 +36,47 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// cpp_ll_ratio_global_flip
+double cpp_ll_ratio_global_flip(const arma::mat& YY, const arma::mat& Beta, const arma::colvec& alpha, const arma::uword n1, const arma::uvec& mapping_n1, const arma::uword n2, const arma::uvec& mapping_n2, const double beta_new_n1n2, const double beta_new_n2n1);
+RcppExport SEXP _IsingPPMx_cpp_ll_ratio_global_flip(SEXP YYSEXP, SEXP BetaSEXP, SEXP alphaSEXP, SEXP n1SEXP, SEXP mapping_n1SEXP, SEXP n2SEXP, SEXP mapping_n2SEXP, SEXP beta_new_n1n2SEXP, SEXP beta_new_n2n1SEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::mat& >::type YY(YYSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type Beta(BetaSEXP);
+    Rcpp::traits::input_parameter< const arma::colvec& >::type alpha(alphaSEXP);
+    Rcpp::traits::input_parameter< const arma::uword >::type n1(n1SEXP);
+    Rcpp::traits::input_parameter< const arma::uvec& >::type mapping_n1(mapping_n1SEXP);
+    Rcpp::traits::input_parameter< const arma::uword >::type n2(n2SEXP);
+    Rcpp::traits::input_parameter< const arma::uvec& >::type mapping_n2(mapping_n2SEXP);
+    Rcpp::traits::input_parameter< const double >::type beta_new_n1n2(beta_new_n1n2SEXP);
+    Rcpp::traits::input_parameter< const double >::type beta_new_n2n1(beta_new_n2n1SEXP);
+    rcpp_result_gen = Rcpp::wrap(cpp_ll_ratio_global_flip(YY, Beta, alpha, n1, mapping_n1, n2, mapping_n2, beta_new_n1n2, beta_new_n2n1));
+    return rcpp_result_gen;
+END_RCPP
+}
+// cpp_ll_ratio_global_swap
+double cpp_ll_ratio_global_swap(const arma::mat& Y, const arma::mat& Omega, const arma::uvec& pair01, const arma::uvec& pair23, const double beta_new_pos0, const arma::uvec& indx0, const double beta_new_pos1, const arma::uvec& indx1, const double beta_new_pos2, const arma::uvec& indx2, const double beta_new_pos3, const arma::uvec& indx3);
+RcppExport SEXP _IsingPPMx_cpp_ll_ratio_global_swap(SEXP YSEXP, SEXP OmegaSEXP, SEXP pair01SEXP, SEXP pair23SEXP, SEXP beta_new_pos0SEXP, SEXP indx0SEXP, SEXP beta_new_pos1SEXP, SEXP indx1SEXP, SEXP beta_new_pos2SEXP, SEXP indx2SEXP, SEXP beta_new_pos3SEXP, SEXP indx3SEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::mat& >::type Y(YSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type Omega(OmegaSEXP);
+    Rcpp::traits::input_parameter< const arma::uvec& >::type pair01(pair01SEXP);
+    Rcpp::traits::input_parameter< const arma::uvec& >::type pair23(pair23SEXP);
+    Rcpp::traits::input_parameter< const double >::type beta_new_pos0(beta_new_pos0SEXP);
+    Rcpp::traits::input_parameter< const arma::uvec& >::type indx0(indx0SEXP);
+    Rcpp::traits::input_parameter< const double >::type beta_new_pos1(beta_new_pos1SEXP);
+    Rcpp::traits::input_parameter< const arma::uvec& >::type indx1(indx1SEXP);
+    Rcpp::traits::input_parameter< const double >::type beta_new_pos2(beta_new_pos2SEXP);
+    Rcpp::traits::input_parameter< const arma::uvec& >::type indx2(indx2SEXP);
+    Rcpp::traits::input_parameter< const double >::type beta_new_pos3(beta_new_pos3SEXP);
+    Rcpp::traits::input_parameter< const arma::uvec& >::type indx3(indx3SEXP);
+    rcpp_result_gen = Rcpp::wrap(cpp_ll_ratio_global_swap(Y, Omega, pair01, pair23, beta_new_pos0, indx0, beta_new_pos1, indx1, beta_new_pos2, indx2, beta_new_pos3, indx3));
+    return rcpp_result_gen;
+END_RCPP
+}
 // Ising_pseudologlikelihood
 double Ising_pseudologlikelihood(const arma::mat& Y, const arma::mat& Omega);
 RcppExport SEXP _IsingPPMx_Ising_pseudologlikelihood(SEXP YSEXP, SEXP OmegaSEXP) {
@@ -711,6 +752,8 @@ END_RCPP
 static const R_CallMethodDef CallEntries[] = {
     {"_IsingPPMx_cpp_pseudo_ll_Omega", (DL_FUNC) &_IsingPPMx_cpp_pseudo_ll_Omega, 2},
     {"_IsingPPMx_cpp_pseudo_ll_alpha_beta", (DL_FUNC) &_IsingPPMx_cpp_pseudo_ll_alpha_beta, 3},
+    {"_IsingPPMx_cpp_ll_ratio_global_flip", (DL_FUNC) &_IsingPPMx_cpp_ll_ratio_global_flip, 9},
+    {"_IsingPPMx_cpp_ll_ratio_global_swap", (DL_FUNC) &_IsingPPMx_cpp_ll_ratio_global_swap, 12},
     {"_IsingPPMx_Ising_pseudologlikelihood", (DL_FUNC) &_IsingPPMx_Ising_pseudologlikelihood, 2},
     {"_IsingPPMx_node_wise_pseudo_ll", (DL_FUNC) &_IsingPPMx_node_wise_pseudo_ll, 2},
     {"_IsingPPMx_log_likelihood_ratio_add", (DL_FUNC) &_IsingPPMx_log_likelihood_ratio_add, 5},
