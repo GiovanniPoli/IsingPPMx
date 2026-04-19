@@ -25,12 +25,127 @@ log_likelihood_ratio_global_swap <- function(Y, Omega, pair01, pair23, beta_new_
     .Call(`_IsingPPMx_log_likelihood_ratio_global_swap`, Y, Omega, pair01, pair23, beta_new_pos0, indx0, beta_new_pos1, indx1, beta_new_pos2, indx2, beta_new_pos3, indx3)
 }
 
-logit_bayes <- function(y, X, b0, B0, bstart, sample, burn = 0L, thinning = 1L) {
-    .Call(`_IsingPPMx_logit_bayes`, y, X, b0, B0, bstart, sample, burn, thinning)
+#' Bayesian Logistic Regression via Polya-Gamma Augmentation
+#'
+#' Fits a Bayesian logistic regression model using the Polya-Gamma data
+#' augmentation scheme of Polson, Scott, and Windle (2013). The posterior
+#' of the coefficient vector \eqn{\boldsymbol{\beta}} is conjugate given the
+#' augmented variables, and each MCMC iteration reduces to a Gaussian update.
+#' Used internally as a building block for the node-wise coefficient updates
+#' of the quasi-Ising samplers.
+#'
+#' @param y      Binary response vector of length \eqn{N}, with entries in
+#'               \eqn{\{0, 1\}}.
+#' @param X      Design matrix of dimension \eqn{N \times P}. For node-wise
+#'               quasi-Ising updates, the column corresponding to the response
+#'               node is replaced by a column of ones (intercept).
+#' @param b0     Prior mean vector of length \eqn{P} for
+#'               \eqn{\boldsymbol{\beta} \sim \mathcal{N}(\mathbf{b}_0, B_0)}.
+#' @param B0     Prior covariance matrix \eqn{P \times P} for
+#'               \eqn{\boldsymbol{\beta}}.
+#' @param bstart Starting value for \eqn{\boldsymbol{\beta}}, a vector of
+#'               length \eqn{P}.
+#' @param sample Number of MCMC draws to retain after burn-in and thinning.
+#' @param burn   Number of initial iterations to discard as burn-in.
+#'               Default \code{0}.
+#' @param thinning Thinning interval: one draw is stored every
+#'               \code{thinning} iterations. Default \code{1} (no thinning).
+#'
+#' @return A numeric matrix of dimension \code{sample} \eqn{\times} \eqn{P}.
+#'   Row \eqn{s} contains the \eqn{s}-th posterior draw of
+#'   \eqn{\boldsymbol{\beta}}.
+#'
+#' @details
+#' The sampler runs for \code{burn + thinning * sample} total iterations.
+#' At each step:
+#' \enumerate{
+#'   \item Compute the linear predictor \eqn{\boldsymbol{\psi} = X\boldsymbol{\beta}}.
+#'   \item Draw Polya-Gamma weights \eqn{\omega_i \sim \mathrm{PG}(1, \psi_i)}.
+#'   \item Update \eqn{\boldsymbol{\beta}} from the resulting Gaussian full conditional distribution.
+#' }
+#'
+#' @references
+#' Polson, N. G., Scott, J. G., and Windle, J. B. (2013).
+#' Bayesian inference for logistic models using Polya-Gamma latent variables.
+#' \emph{Journal of the American Statistical Association}, 108(504), 1339--1349.
+#'
+#' @seealso \code{\link{qIsing}}, \code{\link{qIsing_PPMx}}
+#'
+#' @export
+bayes_logistic_regression <- function(y, X, b0, B0, bstart, sample, burn = 0L, thinning = 1L) {
+    .Call(`_IsingPPMx_bayes_logistic_regression`, y, X, b0, B0, bstart, sample, burn, thinning)
 }
 
-qIsing_v0 <- function(Y, var_int, var_coef, par_pi, sample, burn = 0L, thinning = 1L) {
-    .Call(`_IsingPPMx_qIsing_v0`, Y, var_int, var_coef, par_pi, sample, burn, thinning)
+#' Bayesian Quasi-Ising Graphical Model (Single Population)
+#'
+#' Fits a single-population quasi-Ising graphical model via Metropolis-within-Gibbs
+#' MCMC. The joint distribution is approximated by the pseudo-likelihood of
+#' Besag (1975), which factorises into \eqn{P} independent node-wise logistic
+#' regressions. Graph structure is learned through a finite-exchangeable-sequence
+#' (FES) prior on the edge count
+#' Paired interaction coefficients share information through bivariate Normal prior with correlation \eqn{\rho}.
+#'
+#' @param Y      Binary data matrix of dimension \eqn{N \times P}. Rows are
+#'               observations, columns are nodes of the graph.
+#' @param Qx     Probability vector of length \eqn{L+1}, where
+#'               \eqn{L = P(P-1)/2}, encoding the FES prior on the number of
+#'               active edges: \eqn{Q_x(k) = \Pr(K = k)} for
+#'               \eqn{k = 0, \ldots, L}.
+#' @param sd_int  Prior standard deviation for the node-wise intercepts
+#'               \eqn{\alpha_j \sim \mathcal{N}(0, \texttt{sd\_int}^2)}.
+#' @param sd_coef Prior standard deviation for the slab component of the
+#'               interaction coefficients
+#'               \eqn{\beta_{r,c} \mid \gamma_{r,c}=1 \sim \mathcal{N}(0, \texttt{sd\_coef}^2)}.
+#' @param rho    Correlation parameter of the quasi-symmetric Normal prior on
+#'               the paired coefficients \eqn{(\beta_{r,c}, \beta_{c,r})}.
+#'               \eqn{\rho = 0} gives independence; \eqn{\rho \to 1} forces
+#'               \eqn{\beta_{r,c} = \beta_{c,r}} a priori.
+#' @param sample Number of MCMC draws to retain after burn-in and thinning.
+#' @param burn   Number of initial iterations to discard as burn-in.
+#'               Default \code{0}.
+#' @param thinning Thinning interval. Default \code{1} (no thinning).
+#'
+#' @return A named \code{list} of length \code{sample}. Each element is itself
+#'   a named list with four entries:
+#'   \describe{
+#'     \item{\code{Beta}}{Numeric \eqn{P \times P} matrix of interaction
+#'       coefficients. Entry \eqn{(r,c)} is \eqn{\hat\beta_{r,c}}; the diagonal
+#'       is zero.}
+#'     \item{\code{alpha}}{Numeric vector of length \eqn{P} of node-wise
+#'       intercepts.}
+#'     \item{\code{ones}}{Integer vector of active-edge linear indices
+#'       (1-based, \eqn{\subseteq \{1,\ldots,L\}}). Together with
+#'       \code{zeros} it partitions the full edge set.}
+#'     \item{\code{zeros}}{Integer vector of inactive-edge linear indices
+#'       (1-based).}
+#'   }
+#'
+#' @details
+#' The sampler alternates two steps at each iteration:
+#' \enumerate{
+#'   \item \strong{Coefficient-smooting update step} (\eqn{\alpha}, \eqn{\beta}).
+#'   \item \strong{Graph update} (\eqn{\Gamma}).
+#'     A Global Add / Delete / Swap Metropolis step proposes a new graph from the
+#'     FES prior \code{Qx} and accepts according to the quasi-likelihood ratio.
+#' }
+#'
+#' @references
+#' Besag, J. (1975). Statistical analysis of non-lattice data.
+#' \emph{The Statistician}, 24(3), 179--195.
+#'
+#' Polson, N. G., Scott, J. G., and Windle, J. B. (2013).
+#' Bayesian inference for logistic models using Polya-Gamma latent variables.
+#' \emph{JASA}, 108(504), 1339--1349.
+#'
+#' @seealso \code{\link{bayes_logistic_regression}}, \code{\link{qIsing_PPMx_v5}}
+#'
+#' @export
+bayes_qIsing <- function(Y, Qx, sd_int, sd_coef, rho, sample, burn = 0L, thinning = 1L) {
+    .Call(`_IsingPPMx_bayes_qIsing`, Y, Qx, sd_int, sd_coef, rho, sample, burn, thinning)
+}
+
+qIsing <- function(Y, var_int, var_coef, par_pi, sample, burn = 0L, thinning = 1L) {
+    .Call(`_IsingPPMx_qIsing`, Y, var_int, var_coef, par_pi, sample, burn, thinning)
 }
 
 qIsing_PPMx_v0 <- function(Y, Z, var_int, var_coef, par_pi, M, sigma, sample = 1000L, burn = 0L, thinning = 1L, C = 5L) {
@@ -153,23 +268,19 @@ rpg <- function(z, trunc = 200L) {
     .Call(`_IsingPPMx_rpg`, z, trunc)
 }
 
-rG0_v0 <- function(dim, sd_off_diag, sd_diag, sparsity) {
-    .Call(`_IsingPPMx_rG0_v0`, dim, sd_off_diag, sd_diag, sparsity)
-}
-
-rG0_v1 <- function(dim, sd_off_diag, sd_diag, sparsity, c) {
-    .Call(`_IsingPPMx_rG0_v1`, dim, sd_off_diag, sd_diag, sparsity, c)
-}
-
-rG0_v2 <- function(dim, Qx, sd_off_diag, sd_diag, c) {
-    .Call(`_IsingPPMx_rG0_v2`, dim, Qx, sd_off_diag, sd_diag, c)
-}
-
 cpp_find_idx_j <- function(v, j) {
     .Call(`_IsingPPMx_cpp_find_idx_j`, v, j)
 }
 
-w_rG0_v3 <- function(dim, Qx, sd_offdiag, sd_diag) {
-    .Call(`_IsingPPMx_w_rG0_v3`, dim, Qx, sd_offdiag, sd_diag)
+cp_default_wrapper <- function() {
+    .Call(`_IsingPPMx_cp_default_wrapper`)
+}
+
+cp_empty_wrapper <- function(dim) {
+    .Call(`_IsingPPMx_cp_empty_wrapper`, dim)
+}
+
+cp_prior_wrapper <- function(dim, Qx, sd_diag, sd_offdiag, rho) {
+    .Call(`_IsingPPMx_cp_prior_wrapper`, dim, Qx, sd_diag, sd_offdiag, rho)
 }
 

@@ -9,6 +9,7 @@
 #include "utils.h"
 #include "MCMC.h"
 #include "update_steps.h"
+#include "struct.h"
 
 // [[Rcpp::export]]
 Rcpp::NumericVector rpg( const arma::colvec z, const int trunc = 200 ) {
@@ -16,38 +17,6 @@ Rcpp::NumericVector rpg( const arma::colvec z, const int trunc = 200 ) {
   return Rcpp::NumericVector(w.begin(), w.end());
 }
 
-// [[Rcpp::export]]
-Rcpp::List rG0_v0( const int dim,
-                   const double sd_off_diag,
-                   const double sd_diag,
-                   const double sparsity){
-  std::pair<arma::mat,arma::mat> ret = cpp_rG0_v0( dim, sparsity, sd_off_diag, sd_diag );
-  return Rcpp::List::create( Rcpp::Named("Coef")    = ret.first,
-                             Rcpp::Named("Betas")   = ret.second );
-}
-
-// [[Rcpp::export]]
-Rcpp::List rG0_v1( const int dim,
-                   const double sd_off_diag,
-                   const double sd_diag,
-                   const double sparsity,
-                   const double c ){
-  std::pair<arma::mat,arma::mat> ret = cpp_rG0_v1( dim, sparsity, c, sd_off_diag, sd_diag );
-  return Rcpp::List::create( Rcpp::Named("Coef")    = ret.first,
-                             Rcpp::Named("Betas")   = ret.second );
-}
-
-// [[Rcpp::export]]
-Rcpp::List rG0_v2( const int dim,
-                   const arma::colvec & Qx,
-                   const double sd_off_diag,
-                   const double sd_diag,
-                   const double c ){
-  std::tuple<arma::mat,arma::mat,arma::mat> ret = cpp_rG0_v2( dim, Qx, c, sd_off_diag, sd_diag );
-  return Rcpp::List::create( Rcpp::Named("Coef")    = std::get<0>(ret),
-                             Rcpp::Named("Betas")   = std::get<1>(ret),
-                             Rcpp::Named("Actives") = std::get<2>(ret) );
-}
 
 // [[Rcpp::export]]
 int cpp_find_idx_j(const arma::uvec & v, int j) {
@@ -59,27 +28,49 @@ int cpp_find_idx_j(const arma::uvec & v, int j) {
   throw std::runtime_error("index lost during the mapping");
 }
 
- // [[Rcpp::export]]
- Rcpp::List w_rG0_v3(const int dim,
-                     const arma::colvec &Qx,
-                     double sd_offdiag,
-                     double sd_diag) {
-   auto res = cpp_rG0_v3(dim, Qx, sd_offdiag, sd_diag);
-   arma::mat ret1 = std::get<0>(res);
-   arma::mat ret2 = std::get<1>(res);
-   arma::uvec ones = std::get<2>(res);
-   arma::uvec zeros = std::get<3>(res);
-   std::vector<arma::uvec> Map_for_Ising = std::get<4>(res);
+// Helper: convert a cluster_parameter into a R list.
+static Rcpp::List cluster_to_list(const cluster_parameter & cp) {
 
+  arma::uvec ones_r  = cp.ones.is_empty()  ? arma::uvec() : cp.ones  + 1;
+  arma::uvec zeros_r = cp.zeros.is_empty() ? arma::uvec() : cp.zeros + 1;
 
-   Rcpp::List map_list = vector_to_list(Map_for_Ising) ;
-   return Rcpp::List::create(
-     Rcpp::Named("ret1") = ret1,
-     Rcpp::Named("ret2") = ret2,
-     Rcpp::Named("ones") = ones,
-     Rcpp::Named("zeros") = zeros,
-     Rcpp::Named("Map_for_Ising") = map_list
-   );
- }
+  Rcpp::List mapping_r(cp.mapping.size());
+  for (std::size_t r = 0; r < cp.mapping.size(); ++r) {
+    arma::uvec tmp = cp.mapping[r];
+    if (!tmp.is_empty()) tmp += 1;
+    mapping_r[r] = tmp;
+  }
 
+  return Rcpp::List::create(
+    Rcpp::Named("Beta")    = cp.Beta,
+    Rcpp::Named("alpha")   = cp.alpha,
+    Rcpp::Named("ones")    = ones_r,
+    Rcpp::Named("zeros")   = zeros_r,
+    Rcpp::Named("mapping") = mapping_r
+  );
+}
 
+// Wrapper 1 : default constructor (no arguments)
+// [[Rcpp::export]]
+Rcpp::List cp_default_wrapper() {
+  cluster_parameter cp;
+  return cluster_to_list(cp);
+}
+
+// Wrapper 2 : empty-graph constructor
+// [[Rcpp::export]]
+Rcpp::List cp_empty_wrapper(const arma::uword dim) {
+  cluster_parameter cp(dim);
+  return cluster_to_list(cp);
+}
+
+// Wrapper 3 : prior-sampling constructor
+// [[Rcpp::export]]
+Rcpp::List cp_prior_wrapper(const arma::uword    dim,
+                      const arma::colvec & Qx,
+                      const double         sd_diag,
+                      const double         sd_offdiag,
+                      const double         rho) {
+  cluster_parameter cp(dim, Qx, sd_diag, sd_offdiag, rho);
+  return cluster_to_list(cp);
+}

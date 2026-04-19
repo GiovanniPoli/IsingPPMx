@@ -15,8 +15,56 @@
 
 // [[Rcpp::depends(RcppArmadillo)]]
 // [[Rcpp::depends(RcppDist)]]
+
+//' Bayesian Logistic Regression via Polya-Gamma Augmentation
+//'
+//' Fits a Bayesian logistic regression model using the Polya-Gamma data
+//' augmentation scheme of Polson, Scott, and Windle (2013). The posterior
+//' of the coefficient vector \eqn{\boldsymbol{\beta}} is conjugate given the
+//' augmented variables, and each MCMC iteration reduces to a Gaussian update.
+//' Used internally as a building block for the node-wise coefficient updates
+//' of the quasi-Ising samplers.
+//'
+//' @param y      Binary response vector of length \eqn{N}, with entries in
+//'               \eqn{\{0, 1\}}.
+//' @param X      Design matrix of dimension \eqn{N \times P}. For node-wise
+//'               quasi-Ising updates, the column corresponding to the response
+//'               node is replaced by a column of ones (intercept).
+//' @param b0     Prior mean vector of length \eqn{P} for
+//'               \eqn{\boldsymbol{\beta} \sim \mathcal{N}(\mathbf{b}_0, B_0)}.
+//' @param B0     Prior covariance matrix \eqn{P \times P} for
+//'               \eqn{\boldsymbol{\beta}}.
+//' @param bstart Starting value for \eqn{\boldsymbol{\beta}}, a vector of
+//'               length \eqn{P}.
+//' @param sample Number of MCMC draws to retain after burn-in and thinning.
+//' @param burn   Number of initial iterations to discard as burn-in.
+//'               Default \code{0}.
+//' @param thinning Thinning interval: one draw is stored every
+//'               \code{thinning} iterations. Default \code{1} (no thinning).
+//'
+//' @return A numeric matrix of dimension \code{sample} \eqn{\times} \eqn{P}.
+//'   Row \eqn{s} contains the \eqn{s}-th posterior draw of
+//'   \eqn{\boldsymbol{\beta}}.
+//'
+//' @details
+//' The sampler runs for \code{burn + thinning * sample} total iterations.
+//' At each step:
+//' \enumerate{
+//'   \item Compute the linear predictor \eqn{\boldsymbol{\psi} = X\boldsymbol{\beta}}.
+//'   \item Draw Polya-Gamma weights \eqn{\omega_i \sim \mathrm{PG}(1, \psi_i)}.
+//'   \item Update \eqn{\boldsymbol{\beta}} from the resulting Gaussian full conditional distribution.
+//' }
+//'
+//' @references
+//' Polson, N. G., Scott, J. G., and Windle, J. B. (2013).
+//' Bayesian inference for logistic models using Polya-Gamma latent variables.
+//' \emph{Journal of the American Statistical Association}, 108(504), 1339--1349.
+//'
+//' @seealso \code{\link{qIsing}}, \code{\link{qIsing_PPMx}}
+//'
+//' @export
 // [[Rcpp::export]]
-arma::mat logit_bayes( const arma::colvec & y,  const arma::mat & X,
+arma::mat bayes_logistic_regression( const arma::colvec & y,  const arma::mat & X,
                        const arma::colvec & b0, const arma::mat & B0,
                        const arma::colvec & bstart,
                        const int sample,
@@ -52,8 +100,8 @@ arma::mat logit_bayes( const arma::colvec & y,  const arma::mat & X,
 
   for( int s = 0; s<S; ++s){
     Rcpp::checkUserInterrupt();
-
     catIter(s, S, t0) ;
+
     psi    = X*beta ;
     w      = cpp_polyagamma_h1_devroye(psi) ;
     Xw     = X.each_col()%w ;
@@ -67,15 +115,154 @@ arma::mat logit_bayes( const arma::colvec & y,  const arma::mat & X,
       BETA.row(ss) =  beta.t() ;
       ss += 1 ;
     }
-    catIter(S, S, t0) ;
   }
+  catIter(S, S, t0) ;
   return BETA ;
 }
 
+//' Bayesian Quasi-Ising Graphical Model (Single Population)
+//'
+//' Fits a single-population quasi-Ising graphical model via Metropolis-within-Gibbs
+//' MCMC. The joint distribution is approximated by the pseudo-likelihood of
+//' Besag (1975), which factorises into \eqn{P} independent node-wise logistic
+//' regressions. Graph structure is learned through a finite-exchangeable-sequence
+//' (FES) prior on the edge count
+//' Paired interaction coefficients share information through bivariate Normal prior with correlation \eqn{\rho}.
+//'
+//' @param Y      Binary data matrix of dimension \eqn{N \times P}. Rows are
+//'               observations, columns are nodes of the graph.
+//' @param Qx     Probability vector of length \eqn{L+1}, where
+//'               \eqn{L = P(P-1)/2}, encoding the FES prior on the number of
+//'               active edges: \eqn{Q_x(k) = \Pr(K = k)} for
+//'               \eqn{k = 0, \ldots, L}.
+//' @param sd_int  Prior standard deviation for the node-wise intercepts
+//'               \eqn{\alpha_j \sim \mathcal{N}(0, \texttt{sd\_int}^2)}.
+//' @param sd_coef Prior standard deviation for the slab component of the
+//'               interaction coefficients
+//'               \eqn{\beta_{r,c} \mid \gamma_{r,c}=1 \sim \mathcal{N}(0, \texttt{sd\_coef}^2)}.
+//' @param rho    Correlation parameter of the quasi-symmetric Normal prior on
+//'               the paired coefficients \eqn{(\beta_{r,c}, \beta_{c,r})}.
+//'               \eqn{\rho = 0} gives independence; \eqn{\rho \to 1} forces
+//'               \eqn{\beta_{r,c} = \beta_{c,r}} a priori.
+//' @param sample Number of MCMC draws to retain after burn-in and thinning.
+//' @param burn   Number of initial iterations to discard as burn-in.
+//'               Default \code{0}.
+//' @param thinning Thinning interval. Default \code{1} (no thinning).
+//'
+//' @return A named \code{list} of length \code{sample}. Each element is itself
+//'   a named list with four entries:
+//'   \describe{
+//'     \item{\code{Beta}}{Numeric \eqn{P \times P} matrix of interaction
+//'       coefficients. Entry \eqn{(r,c)} is \eqn{\hat\beta_{r,c}}; the diagonal
+//'       is zero.}
+//'     \item{\code{alpha}}{Numeric vector of length \eqn{P} of node-wise
+//'       intercepts.}
+//'     \item{\code{ones}}{Integer vector of active-edge linear indices
+//'       (1-based, \eqn{\subseteq \{1,\ldots,L\}}). Together with
+//'       \code{zeros} it partitions the full edge set.}
+//'     \item{\code{zeros}}{Integer vector of inactive-edge linear indices
+//'       (1-based).}
+//'   }
+//'
+//' @details
+//' The sampler alternates two steps at each iteration:
+//' \enumerate{
+//'   \item \strong{Coefficient-smooting update step} (\eqn{\alpha}, \eqn{\beta}).
+//'   \item \strong{Graph update} (\eqn{\Gamma}).
+//'     A Global Add / Delete / Swap Metropolis step proposes a new graph from the
+//'     FES prior \code{Qx} and accepts according to the quasi-likelihood ratio.
+//' }
+//'
+//' @references
+//' Besag, J. (1975). Statistical analysis of non-lattice data.
+//' \emph{The Statistician}, 24(3), 179--195.
+//'
+//' Polson, N. G., Scott, J. G., and Windle, J. B. (2013).
+//' Bayesian inference for logistic models using Polya-Gamma latent variables.
+//' \emph{JASA}, 108(504), 1339--1349.
+//'
+//' @seealso \code{\link{bayes_logistic_regression}}, \code{\link{qIsing_PPMx_v5}}
+//'
+//' @export
 // [[Rcpp::export]]
-Rcpp::List qIsing_v0( const arma::mat & Y,
-                      const double var_int, const double var_coef, const double par_pi,
-                      const int sample, const int burn = 0, const int thinning = 1){
+Rcpp::List bayes_qIsing( const arma::mat  & Y,
+                         const arma::colvec & Qx,
+                         const double sd_int,
+                         const double sd_coef,
+                         const double rho,
+                         const int sample,
+                         const int burn     = 0,
+                         const int thinning = 1 ) {
+
+  const arma::uword N = Y.n_rows;
+  const arma::uword P = Y.n_cols;
+  const arma::uword L = P * (P - 1) / 2;
+  const arma::uword S = burn + thinning * static_cast<arma::uword>(sample);
+
+  arma::uword ss = 0;
+  Rcpp::List  return_list(sample);
+
+  arma::mat    Beta(P, P, arma::fill::zeros);
+  arma::colvec alpha(P, arma::fill::zeros);
+  arma::uvec   ones  = arma::uvec();
+  arma::uvec   zeros = arma::regspace<arma::uvec>(0, L - 1);
+
+  std::vector<arma::uvec> mapping(P);
+  for (arma::uword r = 0; r < P; ++r) {
+    mapping[r] = arma::uvec({r});
+  }
+
+  arma::uword current_edges = 0;
+
+  MyTimePoint t0 = myClock::now();
+
+  for (arma::uword s = 0; s < S; ++s) {
+    Rcpp::checkUserInterrupt();
+    catIter(s, S, t0);
+
+    for (arma::uword r = 0; r < P; ++r) {
+      // TODO: replace with the new helper once available.
+      // Expected signature (to be confirmed):
+      //   cpp_update_Omega_v6( Beta, alpha,
+      //                        r, mapping[r],
+      //                        Y,
+      //                        sd_coef, sd_int, rho );
+    }
+
+
+
+    // Store
+    if ( ((s + 1) > static_cast<arma::uword>(burn)) &&
+         ((s + 1 - burn) % static_cast<arma::uword>(thinning) == 0) ) {
+      return_list[ss] = Rcpp::List::create(
+        Rcpp::Named("Beta")  = Beta,
+        Rcpp::Named("alpha") = alpha,
+        Rcpp::Named("ones")  = ones  + 1,   // shift for R
+        Rcpp::Named("zeros") = zeros + 1
+      );
+      ss += 1;
+    }
+  }
+  catIter(S, S, t0);
+  return return_list;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+// [[Rcpp::export]]
+Rcpp::List qIsing( const arma::mat & Y,
+                   const double var_int, const double var_coef, const double par_pi,
+                   const int sample, const int burn = 0, const int thinning = 1){
   const int N = Y.n_rows ;
   const int P = Y.n_cols ;
 
