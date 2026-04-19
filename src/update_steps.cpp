@@ -13,6 +13,107 @@
 
 using namespace Rcpp;
 
+// Step to update Logit Regression par
+void cpp_update_beta_and_alpha( const arma::mat  & YY,
+                                arma::mat        & BETA,
+                                arma::colvec     & alpha,
+                                const arma::uvec & map_ones,
+                                const double var_slab,
+                                const double var_int,
+                                const double rho) {
+  const arma::uword p = map_ones(0);
+  const arma::uvec node = arma::uvec{p};
+  const auto & tilde_y      = YY.col(p);
+  const auto & beta_reduced = BETA.submat(map_ones, node ).as_col() ;
+
+  arma::uword _p    = map_ones.n_rows;
+  arma::mat tilde_X = YY.cols(map_ones);
+  tilde_X.col(0).ones();
+
+  arma::colvec  kappa = tilde_y - .5;
+
+  // Creating implied prior on parameters
+  const arma::colvec b0 = rho * BETA.submat(node, map_ones).as_col();
+  arma::colvec prec0_diag(_p, arma::fill::value( 1.0 / (var_slab * (1.0 + 1e-10 - rho*rho))));
+  prec0_diag(0) = 1.0 / var_int;
+  arma::mat Prec0 = arma::diagmat(prec0_diag);
+
+  arma::mat    Xw( YY.n_rows, _p);
+  arma::mat    Precn(_p,_p) ;
+  arma::mat    Varn(_p,_p)  ;
+  arma::colvec Meann(_p) ;
+
+
+  // Update (Sample):
+  // P.G. Augmentation,
+  arma::colvec psi = tilde_X*beta_reduced + alpha(p) ;
+  arma::colvec w   = cpp_polyagamma_h1_devroye(psi) ;
+
+  // Normal-Normal conjugate models,
+  Precn = tilde_X.t()* arma::diagmat(w) * tilde_X + Prec0 ;
+  Varn  = arma::inv_sympd(Precn) ;
+  Meann = Varn*( tilde_X.t() * kappa + Prec0 * b0 ) ;
+  arma::colvec new_alpha_and_beta = cpp_mvrnormArma1(Meann, Varn);
+
+  // Update (Allocation):
+  alpha(p) = new_alpha_and_beta(0) ;
+  new_alpha_and_beta(0) = 0.0 ;
+  BETA.submat(map_ones, node) = new_alpha_and_beta ;
+}
+
+
+// Step for Global SRS
+void cpp_update_global_SRS(
+      const arma::mat & YY,
+      arma::mat & BETA,
+      const arma::colvec & alpha,
+      arma::uvec & map_ones,
+      arma::uvec & map_zeros,
+      std::vector<arma::uvec> & mapping,
+      const arma::colvec & Qx, const double var_slab, const double rho ) {
+
+    const arma::uword N = YY.n_rows;
+    const arma::uword P = YY.n_cols;
+    const arma::uword L = P * (P - 1) / 2;
+    const arma::uword K  = map_ones.n_elem;
+    const arma::uword K0 = map_zeros.n_elem;
+
+    // Select move type
+    enum MoveType { FORCED_ADD, FORCED_DELATE, FLIP, SWAP };
+    MoveType move;
+
+    if (K == 0) {
+      move = FORCED_ADD;
+    }else if (K0 == 0) {
+      move = FORCED_DELATE;
+    }else {
+      double u_step = arma::randu<double>();
+
+      if(u_step < 0.5){
+        move = SWAP;
+      }else{
+        move = FLIP;
+      }
+    }
+
+    if (move == FORCED_ADD) {
+
+    } else if (move == FORCED_DELATE) {
+
+    } else if (move == FLIP ) {
+
+    } else if (move == SWAP ){
+
+      const arma::mat    S0 = { {var_slab, rho}, {rho, var_slab} };
+      const arma::colvec B0 = {0,0};
+
+    }
+
+}
+
+// OLD
+
+
 void cpp_update_Omega( const int p,
                        const arma::subview_col<double> tilde_gamma,
                              arma::subview_col<double> tilde_beta,

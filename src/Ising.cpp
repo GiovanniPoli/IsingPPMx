@@ -11,6 +11,76 @@ using namespace Rcpp ;
 
 // [[Rcpp::depends(RcppArmadillo, RcppDist)]]
 
+
+
+
+// =============================================================================
+// Ising_pseudolikelihood.cpp
+// -----------------------------------------------------------------------------
+// Quasi-Ising log pseudo-likelihood.
+//
+// Two C++ backends compute the same quantity under different parametrisations.
+// Both are exported with a leading dot in the R name (".cpp_pseudo_ll_*") so
+// they are callable from the R wrapper but are NOT added to the package
+// NAMESPACE and do not appear in user-visible documentation.
+//
+// The R-visible entry point is `pseudo_ll()`, a polymorphic dispatcher that
+// selects the backend based on the named arguments:
+//
+//   pseudo_ll(Y, Omega = Om)              # -> .cpp_pseudo_ll_Omega
+//   pseudo_ll(Y, alpha = a, Beta = B)     # -> .cpp_pseudo_ll_alpha_beta
+//
+// The two parametrisations are related by:
+//   alpha_r    = Omega(r, r)
+//   beta_{r,c} = Omega(r, c)  for r != c
+// so both backends return the same value for equivalent inputs.
+// =============================================================================
+
+// [[Rcpp::depends(RcppArmadillo)]]
+#include <RcppArmadillo.h>
+
+
+// -----------------------------------------------------------------------------
+// .cpp_pseudo_ll_Omega   (INTERNAL)
+// -----------------------------------------------------------------------------
+// Phi(i,r) = Omega(r,r) + sum_{c != r} Omega(r,c) * y_{c,i}
+// log PL   = sum_{i,r} [ y_{r,i} * Phi(i,r) - log(1 + exp(Phi(i,r))) ]
+// -----------------------------------------------------------------------------
+// [[Rcpp::export(name = ".cpp_pseudo_ll_Omega")]]
+double cpp_pseudo_ll_Omega( const arma::mat & Y,
+                            const arma::mat & Omega ) {
+
+  const arma::rowvec diag_Omega = Omega.diag().t();
+
+  arma::mat Phi = Y * Omega.t();        // includes spurious y_{r,i} * Omega(r,r)
+  Phi.each_row() += diag_Omega;         // add intercept
+  Phi -= Y.each_row() % diag_Omega;     // remove the spurious diagonal term
+
+  return arma::accu( Y % Phi - arma::log1p(arma::exp(Phi)) );
+}
+
+
+// -----------------------------------------------------------------------------
+// .cpp_pseudo_ll_alpha_beta   (INTERNAL)
+// -----------------------------------------------------------------------------
+// Phi(i,r) = alpha_r + sum_{c != r} Beta(r,c) * y_{c,i}
+// Relies on Beta having zero diagonal.
+// -----------------------------------------------------------------------------
+// [[Rcpp::export(name = ".cpp_pseudo_ll_alpha_beta")]]
+double cpp_pseudo_ll_alpha_beta( const arma::mat    & Y,
+                                 const arma::colvec & alpha,
+                                 const arma::mat    & Beta ) {
+
+  arma::mat Phi = Y * Beta.t();
+  Phi.each_row() += alpha.t();
+
+  return arma::accu( Y % Phi - arma::log1p(arma::exp(Phi)) );
+}
+
+
+
+
+
 // [[Rcpp::export]]
 double Ising_pseudologlikelihood(const arma::mat& Y, const arma::mat& Omega) {
   arma::vec diag = Omega.diag();

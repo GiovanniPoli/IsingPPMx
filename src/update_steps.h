@@ -6,6 +6,15 @@
 #include <chrono>
 #include <thread>
 
+
+void cpp_update_beta_and_alpha( const arma::mat  & YY,
+                                arma::mat        & BETA,
+                                arma::colvec     & alpha,
+                                const arma::uvec & map_ones,
+                                const double var_slab,
+                                const double var_int,
+                                const double rho );
+
 void cpp_update_Omega( const int p, // diff var
                        const arma::subview_col<double> tilde_gamma,
                              arma::subview_col<double> tilde_beta,

@@ -74,3 +74,24 @@ Rcpp::List cp_prior_wrapper(const arma::uword    dim,
   cluster_parameter cp(dim, Qx, sd_diag, sd_offdiag, rho);
   return cluster_to_list(cp);
 }
+
+// Wrapper 4 : test_update_alpha_and_beta
+// [[Rcpp::export]]
+Rcpp::List test_update_alpha_and_beta(
+                            const arma::mat    & YY,
+                            arma::mat    & BETA,
+                            arma::colvec & alpha,
+                            const arma::uvec   & mapping_vector,
+                            const double sd_offdiag,
+                            const double sd_diag,
+                            const double rho) {
+
+  cpp_update_beta_and_alpha( YY, BETA, alpha, mapping_vector,
+                             sd_offdiag * sd_offdiag,
+                             sd_diag    * sd_diag,
+                             rho );
+
+  return Rcpp::List::create(
+      Rcpp::Named("Beta")    = BETA,
+      Rcpp::Named("alpha")   = alpha);
+}

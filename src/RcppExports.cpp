@@ -11,6 +11,31 @@ Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
 Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
+// cpp_pseudo_ll_Omega
+double cpp_pseudo_ll_Omega(const arma::mat& Y, const arma::mat& Omega);
+RcppExport SEXP _IsingPPMx_cpp_pseudo_ll_Omega(SEXP YSEXP, SEXP OmegaSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::mat& >::type Y(YSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type Omega(OmegaSEXP);
+    rcpp_result_gen = Rcpp::wrap(cpp_pseudo_ll_Omega(Y, Omega));
+    return rcpp_result_gen;
+END_RCPP
+}
+// cpp_pseudo_ll_alpha_beta
+double cpp_pseudo_ll_alpha_beta(const arma::mat& Y, const arma::colvec& alpha, const arma::mat& Beta);
+RcppExport SEXP _IsingPPMx_cpp_pseudo_ll_alpha_beta(SEXP YSEXP, SEXP alphaSEXP, SEXP BetaSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::mat& >::type Y(YSEXP);
+    Rcpp::traits::input_parameter< const arma::colvec& >::type alpha(alphaSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type Beta(BetaSEXP);
+    rcpp_result_gen = Rcpp::wrap(cpp_pseudo_ll_alpha_beta(Y, alpha, Beta));
+    return rcpp_result_gen;
+END_RCPP
+}
 // Ising_pseudologlikelihood
 double Ising_pseudologlikelihood(const arma::mat& Y, const arma::mat& Omega);
 RcppExport SEXP _IsingPPMx_Ising_pseudologlikelihood(SEXP YSEXP, SEXP OmegaSEXP) {
@@ -106,9 +131,9 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// bayes_logistic_regression
-arma::mat bayes_logistic_regression(const arma::colvec& y, const arma::mat& X, const arma::colvec& b0, const arma::mat& B0, const arma::colvec& bstart, const int sample, const int burn, const int thinning);
-RcppExport SEXP _IsingPPMx_bayes_logistic_regression(SEXP ySEXP, SEXP XSEXP, SEXP b0SEXP, SEXP B0SEXP, SEXP bstartSEXP, SEXP sampleSEXP, SEXP burnSEXP, SEXP thinningSEXP) {
+// logit_mcmc
+arma::mat logit_mcmc(const arma::colvec& y, const arma::mat& X, const arma::colvec& b0, const arma::mat& B0, const arma::colvec& bstart, const int sample, const int burn, const int thinning);
+RcppExport SEXP _IsingPPMx_logit_mcmc(SEXP ySEXP, SEXP XSEXP, SEXP b0SEXP, SEXP B0SEXP, SEXP bstartSEXP, SEXP sampleSEXP, SEXP burnSEXP, SEXP thinningSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -120,13 +145,13 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const int >::type sample(sampleSEXP);
     Rcpp::traits::input_parameter< const int >::type burn(burnSEXP);
     Rcpp::traits::input_parameter< const int >::type thinning(thinningSEXP);
-    rcpp_result_gen = Rcpp::wrap(bayes_logistic_regression(y, X, b0, B0, bstart, sample, burn, thinning));
+    rcpp_result_gen = Rcpp::wrap(logit_mcmc(y, X, b0, B0, bstart, sample, burn, thinning));
     return rcpp_result_gen;
 END_RCPP
 }
-// bayes_qIsing
-Rcpp::List bayes_qIsing(const arma::mat& Y, const arma::colvec& Qx, const double sd_int, const double sd_coef, const double rho, const int sample, const int burn, const int thinning);
-RcppExport SEXP _IsingPPMx_bayes_qIsing(SEXP YSEXP, SEXP QxSEXP, SEXP sd_intSEXP, SEXP sd_coefSEXP, SEXP rhoSEXP, SEXP sampleSEXP, SEXP burnSEXP, SEXP thinningSEXP) {
+// qIsing_mcmc
+Rcpp::List qIsing_mcmc(const arma::mat& Y, const arma::colvec& Qx, const double sd_int, const double sd_coef, const double rho, const int sample, const int burn, const int thinning);
+RcppExport SEXP _IsingPPMx_qIsing_mcmc(SEXP YSEXP, SEXP QxSEXP, SEXP sd_intSEXP, SEXP sd_coefSEXP, SEXP rhoSEXP, SEXP sampleSEXP, SEXP burnSEXP, SEXP thinningSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -138,13 +163,13 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const int >::type sample(sampleSEXP);
     Rcpp::traits::input_parameter< const int >::type burn(burnSEXP);
     Rcpp::traits::input_parameter< const int >::type thinning(thinningSEXP);
-    rcpp_result_gen = Rcpp::wrap(bayes_qIsing(Y, Qx, sd_int, sd_coef, rho, sample, burn, thinning));
+    rcpp_result_gen = Rcpp::wrap(qIsing_mcmc(Y, Qx, sd_int, sd_coef, rho, sample, burn, thinning));
     return rcpp_result_gen;
 END_RCPP
 }
-// qIsing
-Rcpp::List qIsing(const arma::mat& Y, const double var_int, const double var_coef, const double par_pi, const int sample, const int burn, const int thinning);
-RcppExport SEXP _IsingPPMx_qIsing(SEXP YSEXP, SEXP var_intSEXP, SEXP var_coefSEXP, SEXP par_piSEXP, SEXP sampleSEXP, SEXP burnSEXP, SEXP thinningSEXP) {
+// qIsing_mcmcaa
+Rcpp::List qIsing_mcmcaa(const arma::mat& Y, const double var_int, const double var_coef, const double par_pi, const int sample, const int burn, const int thinning);
+RcppExport SEXP _IsingPPMx_qIsing_mcmcaa(SEXP YSEXP, SEXP var_intSEXP, SEXP var_coefSEXP, SEXP par_piSEXP, SEXP sampleSEXP, SEXP burnSEXP, SEXP thinningSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -155,7 +180,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const int >::type sample(sampleSEXP);
     Rcpp::traits::input_parameter< const int >::type burn(burnSEXP);
     Rcpp::traits::input_parameter< const int >::type thinning(thinningSEXP);
-    rcpp_result_gen = Rcpp::wrap(qIsing(Y, var_int, var_coef, par_pi, sample, burn, thinning));
+    rcpp_result_gen = Rcpp::wrap(qIsing_mcmcaa(Y, var_int, var_coef, par_pi, sample, burn, thinning));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -665,17 +690,36 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// test_update_alpha_and_beta
+Rcpp::List test_update_alpha_and_beta(const arma::mat& YY, arma::mat& BETA, arma::colvec& alpha, const arma::uvec& mapping_vector, const double sd_offdiag, const double sd_diag, const double rho);
+RcppExport SEXP _IsingPPMx_test_update_alpha_and_beta(SEXP YYSEXP, SEXP BETASEXP, SEXP alphaSEXP, SEXP mapping_vectorSEXP, SEXP sd_offdiagSEXP, SEXP sd_diagSEXP, SEXP rhoSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::mat& >::type YY(YYSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type BETA(BETASEXP);
+    Rcpp::traits::input_parameter< arma::colvec& >::type alpha(alphaSEXP);
+    Rcpp::traits::input_parameter< const arma::uvec& >::type mapping_vector(mapping_vectorSEXP);
+    Rcpp::traits::input_parameter< const double >::type sd_offdiag(sd_offdiagSEXP);
+    Rcpp::traits::input_parameter< const double >::type sd_diag(sd_diagSEXP);
+    Rcpp::traits::input_parameter< const double >::type rho(rhoSEXP);
+    rcpp_result_gen = Rcpp::wrap(test_update_alpha_and_beta(YY, BETA, alpha, mapping_vector, sd_offdiag, sd_diag, rho));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
+    {"_IsingPPMx_cpp_pseudo_ll_Omega", (DL_FUNC) &_IsingPPMx_cpp_pseudo_ll_Omega, 2},
+    {"_IsingPPMx_cpp_pseudo_ll_alpha_beta", (DL_FUNC) &_IsingPPMx_cpp_pseudo_ll_alpha_beta, 3},
     {"_IsingPPMx_Ising_pseudologlikelihood", (DL_FUNC) &_IsingPPMx_Ising_pseudologlikelihood, 2},
     {"_IsingPPMx_node_wise_pseudo_ll", (DL_FUNC) &_IsingPPMx_node_wise_pseudo_ll, 2},
     {"_IsingPPMx_log_likelihood_ratio_add", (DL_FUNC) &_IsingPPMx_log_likelihood_ratio_add, 5},
     {"_IsingPPMx_log_likelihood_ratio_swap", (DL_FUNC) &_IsingPPMx_log_likelihood_ratio_swap, 7},
     {"_IsingPPMx_log_likelihood_ratio_global_flip", (DL_FUNC) &_IsingPPMx_log_likelihood_ratio_global_flip, 7},
     {"_IsingPPMx_log_likelihood_ratio_global_swap", (DL_FUNC) &_IsingPPMx_log_likelihood_ratio_global_swap, 12},
-    {"_IsingPPMx_bayes_logistic_regression", (DL_FUNC) &_IsingPPMx_bayes_logistic_regression, 8},
-    {"_IsingPPMx_bayes_qIsing", (DL_FUNC) &_IsingPPMx_bayes_qIsing, 8},
-    {"_IsingPPMx_qIsing", (DL_FUNC) &_IsingPPMx_qIsing, 7},
+    {"_IsingPPMx_logit_mcmc", (DL_FUNC) &_IsingPPMx_logit_mcmc, 8},
+    {"_IsingPPMx_qIsing_mcmc", (DL_FUNC) &_IsingPPMx_qIsing_mcmc, 8},
+    {"_IsingPPMx_qIsing_mcmcaa", (DL_FUNC) &_IsingPPMx_qIsing_mcmcaa, 7},
     {"_IsingPPMx_qIsing_PPMx_v0", (DL_FUNC) &_IsingPPMx_qIsing_PPMx_v0, 11},
     {"_IsingPPMx_qIsing_v1", (DL_FUNC) &_IsingPPMx_qIsing_v1, 8},
     {"_IsingPPMx_qIsing_PPMx_v1", (DL_FUNC) &_IsingPPMx_qIsing_PPMx_v1, 12},
@@ -710,6 +754,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_IsingPPMx_cp_default_wrapper", (DL_FUNC) &_IsingPPMx_cp_default_wrapper, 0},
     {"_IsingPPMx_cp_empty_wrapper", (DL_FUNC) &_IsingPPMx_cp_empty_wrapper, 1},
     {"_IsingPPMx_cp_prior_wrapper", (DL_FUNC) &_IsingPPMx_cp_prior_wrapper, 5},
+    {"_IsingPPMx_test_update_alpha_and_beta", (DL_FUNC) &_IsingPPMx_test_update_alpha_and_beta, 7},
     {NULL, NULL, 0}
 };
 

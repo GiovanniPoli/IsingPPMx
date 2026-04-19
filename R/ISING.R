@@ -1,3 +1,80 @@
+#' Quasi-Ising Pseudo-likelihood
+#'
+#' Computes the log pseudo-likelihood of a binary matrix under the quasi-Ising
+#' graphical model.
+#'
+#' @param Y Binary data matrix of dimension \eqn{n \times p}, entries in
+#'   \{0, 1\}.
+#' @param ... Model parameters. Two forms are accepted:
+#'   \describe{
+#'     \item{Omega parametrisation}{Supply \code{Omega}, a
+#'       \eqn{P \times P} matrix with intercepts on the diagonal and
+#'       interactions off-diagonal.}
+#'     \item{alpha + Beta parametrisation}{Supply \code{alpha} (length \eqn{P})
+#'       and \code{Beta} (\eqn{P \times P} matrix, zero diagonal).}
+#'   }
+#'
+#' @return Scalar pseudo-likelihood.
+#'
+#' @details
+#' The two parametrisations are equivalent through
+#' \eqn{\alpha_r = \Omega_{rr}} and \eqn{\beta_{r,c} = \Omega_{r,c}} for
+#' \eqn{r \ne c}.
+#'
+#' @examples
+#' \dontrun{
+#'   pseudo_ll(Y, Omega = Om)
+#'   pseudo_ll(Y, alpha = a, Beta = B)
+#' }
+#'
+#' @export
+qIsing <- function(Y, ... , log = FALSE) {
+
+  args <- list(...)
+
+  if (!is.matrix(Y) || !all(Y %in% c(0, 1)))
+    stop("Y must be a binary matrix.")
+
+  has_Omega <- "Omega" %in% names(args)
+  has_ab    <- all(c("alpha", "Beta") %in% names(args))
+
+  if (has_Omega && has_ab)
+    stop("Supply either 'Omega' OR ('alpha' and 'Beta'), not both.")
+  if (!has_Omega && !has_ab)
+    stop("Supply either 'Omega' or both 'alpha' and 'Beta'.")
+
+  P <- ncol(Y)
+
+  if (has_Omega) {
+    Omega <- args$Omega
+    if (!is.matrix(Omega) || any(dim(Omega) != c(P, P)))
+      stop("'Omega' must be a (P x P) matrix.")
+    ret =  .cpp_pseudo_ll_Omega(Y, Omega)
+  }else{
+      alpha <- args$alpha
+      Beta  <- args$Beta
+    if (length(alpha) != P)
+      stop("'alpha' must have length P = ncol(Y).")
+    if (!is.matrix(Beta) || any(dim(Beta) != c(P, P)))
+      stop("'Beta' must be a (P x P) matrix.")
+    if (any(diag(Beta) != 0)){
+      diag(Beta) = 0
+      warning("'Beta' has non-zero diagonal entries")
+    }
+    ret = .cpp_pseudo_ll_alpha_beta(Y, alpha, Beta)
+  }
+  if(log){
+    return(ret)
+  }else{
+    return(exp(ret))
+  }
+}
+
+
+
+
+
+
 if(FALSE){
 
   library(IsingPPMx)

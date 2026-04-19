@@ -25,24 +25,24 @@
 //' Used internally as a building block for the node-wise coefficient updates
 //' of the quasi-Ising samplers.
 //'
-//' @param y      Binary response vector of length \eqn{N}, with entries in
+//' @param y      Binary response vector of length \eqn{n}, with entries in
 //'               \eqn{\{0, 1\}}.
-//' @param X      Design matrix of dimension \eqn{N \times P}. For node-wise
+//' @param X      Design matrix of dimension \eqn{n \times p}. For node-wise
 //'               quasi-Ising updates, the column corresponding to the response
 //'               node is replaced by a column of ones (intercept).
-//' @param b0     Prior mean vector of length \eqn{P} for
+//' @param b0     Prior mean vector of length \eqn{p} for
 //'               \eqn{\boldsymbol{\beta} \sim \mathcal{N}(\mathbf{b}_0, B_0)}.
-//' @param B0     Prior covariance matrix \eqn{P \times P} for
+//' @param B0     Prior covariance matrix \eqn{p \times p} for
 //'               \eqn{\boldsymbol{\beta}}.
 //' @param bstart Starting value for \eqn{\boldsymbol{\beta}}, a vector of
-//'               length \eqn{P}.
+//'               length \eqn{p}.
 //' @param sample Number of MCMC draws to retain after burn-in and thinning.
 //' @param burn   Number of initial iterations to discard as burn-in.
 //'               Default \code{0}.
 //' @param thinning Thinning interval: one draw is stored every
 //'               \code{thinning} iterations. Default \code{1} (no thinning).
 //'
-//' @return A numeric matrix of dimension \code{sample} \eqn{\times} \eqn{P}.
+//' @return A numeric matrix of dimension \eqn{n} \eqn{\times} \eqn{p}.
 //'   Row \eqn{s} contains the \eqn{s}-th posterior draw of
 //'   \eqn{\boldsymbol{\beta}}.
 //'
@@ -64,7 +64,7 @@
 //'
 //' @export
 // [[Rcpp::export]]
-arma::mat bayes_logistic_regression( const arma::colvec & y,  const arma::mat & X,
+arma::mat logit_mcmc( const arma::colvec & y,  const arma::mat & X,
                        const arma::colvec & b0, const arma::mat & B0,
                        const arma::colvec & bstart,
                        const int sample,
@@ -124,15 +124,15 @@ arma::mat bayes_logistic_regression( const arma::colvec & y,  const arma::mat & 
 //'
 //' Fits a single-population quasi-Ising graphical model via Metropolis-within-Gibbs
 //' MCMC. The joint distribution is approximated by the pseudo-likelihood of
-//' Besag (1975), which factorises into \eqn{P} independent node-wise logistic
+//' Besag (1975), which factorises into \eqn{p} independent node-wise logistic
 //' regressions. Graph structure is learned through a finite-exchangeable-sequence
 //' (FES) prior on the edge count
 //' Paired interaction coefficients share information through bivariate Normal prior with correlation \eqn{\rho}.
 //'
-//' @param Y      Binary data matrix of dimension \eqn{N \times P}. Rows are
+//' @param Y      Binary data matrix of dimension \eqn{p \times p}. Rows are
 //'               observations, columns are nodes of the graph.
 //' @param Qx     Probability vector of length \eqn{L+1}, where
-//'               \eqn{L = P(P-1)/2}, encoding the FES prior on the number of
+//'               \eqn{L = p(p-1)/2}, encoding the FES prior on the number of
 //'               active edges: \eqn{Q_x(k) = \Pr(K = k)} for
 //'               \eqn{k = 0, \ldots, L}.
 //' @param sd_int  Prior standard deviation for the node-wise intercepts
@@ -152,10 +152,10 @@ arma::mat bayes_logistic_regression( const arma::colvec & y,  const arma::mat & 
 //' @return A named \code{list} of length \code{sample}. Each element is itself
 //'   a named list with four entries:
 //'   \describe{
-//'     \item{\code{Beta}}{Numeric \eqn{P \times P} matrix of interaction
+//'     \item{\code{Beta}}{Numeric \eqn{p \times p} matrix of interaction
 //'       coefficients. Entry \eqn{(r,c)} is \eqn{\hat\beta_{r,c}}; the diagonal
 //'       is zero.}
-//'     \item{\code{alpha}}{Numeric vector of length \eqn{P} of node-wise
+//'     \item{\code{alpha}}{Numeric vector of length \eqn{p} of node-wise
 //'       intercepts.}
 //'     \item{\code{ones}}{Integer vector of active-edge linear indices
 //'       (1-based, \eqn{\subseteq \{1,\ldots,L\}}). Together with
@@ -185,7 +185,7 @@ arma::mat bayes_logistic_regression( const arma::colvec & y,  const arma::mat & 
 //'
 //' @export
 // [[Rcpp::export]]
-Rcpp::List bayes_qIsing( const arma::mat  & Y,
+Rcpp::List qIsing_mcmc( const arma::mat  & Y,
                          const arma::colvec & Qx,
                          const double sd_int,
                          const double sd_coef,
@@ -199,21 +199,23 @@ Rcpp::List bayes_qIsing( const arma::mat  & Y,
   const arma::uword L = P * (P - 1) / 2;
   const arma::uword S = burn + thinning * static_cast<arma::uword>(sample);
 
+  const double var_slab = sd_coef * sd_coef ;
+  const double var_int  = sd_int  * sd_int  ;
+
   arma::uword ss = 0;
   Rcpp::List  return_list(sample);
 
   arma::mat    Beta(P, P, arma::fill::zeros);
-  arma::colvec alpha(P, arma::fill::zeros);
+  arma::colvec Alpha(P, arma::fill::zeros);
   arma::uvec   ones  = arma::uvec();
   arma::uvec   zeros = arma::regspace<arma::uvec>(0, L - 1);
 
-  std::vector<arma::uvec> mapping(P);
+  std::vector<arma::uvec> MAP(P);
   for (arma::uword r = 0; r < P; ++r) {
-    mapping[r] = arma::uvec({r});
+    MAP[r] = arma::uvec({r});
   }
 
   arma::uword current_edges = 0;
-
   MyTimePoint t0 = myClock::now();
 
   for (arma::uword s = 0; s < S; ++s) {
@@ -221,13 +223,20 @@ Rcpp::List bayes_qIsing( const arma::mat  & Y,
     catIter(s, S, t0);
 
     for (arma::uword r = 0; r < P; ++r) {
-      // TODO: replace with the new helper once available.
-      // Expected signature (to be confirmed):
-      //   cpp_update_Omega_v6( Beta, alpha,
-      //                        r, mapping[r],
-      //                        Y,
-      //                        sd_coef, sd_int, rho );
+
+      cpp_update_beta_and_alpha( Y,
+                                 Beta,
+                                 Alpha,
+                                 MAP[r],
+                                 var_slab,
+                                 var_int,
+                                 rho );
     }
+
+    for (arma::uword r = 0; r < P; ++r) {
+
+    }
+
 
 
 
@@ -236,7 +245,7 @@ Rcpp::List bayes_qIsing( const arma::mat  & Y,
          ((s + 1 - burn) % static_cast<arma::uword>(thinning) == 0) ) {
       return_list[ss] = Rcpp::List::create(
         Rcpp::Named("Beta")  = Beta,
-        Rcpp::Named("alpha") = alpha,
+        Rcpp::Named("alpha") = Alpha,
         Rcpp::Named("ones")  = ones  + 1,   // shift for R
         Rcpp::Named("zeros") = zeros + 1
       );
@@ -260,7 +269,7 @@ Rcpp::List bayes_qIsing( const arma::mat  & Y,
 
 
 // [[Rcpp::export]]
-Rcpp::List qIsing( const arma::mat & Y,
+Rcpp::List qIsing_mcmcaa( const arma::mat & Y,
                    const double var_int, const double var_coef, const double par_pi,
                    const int sample, const int burn = 0, const int thinning = 1){
   const int N = Y.n_rows ;
