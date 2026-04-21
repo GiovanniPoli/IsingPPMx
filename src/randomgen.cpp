@@ -162,168 +162,168 @@ unsigned cpp_sample_1( const arma::uvec & vec, const arma::colvec & prob) {
 }
 
 
-std::pair<arma::mat, arma::mat> cpp_rG0_v0(int dim,
-                                           const double off_diagonal_sparsity,
-                                           const double sd_offdiag,
-                                           const double sd_diag ) {
-  arma::sp_mat mat = arma::sprandn<arma::sp_mat>(dim, dim, off_diagonal_sparsity) * sd_offdiag;
-  mat.diag()       = arma::randn(dim) * sd_diag;
-
-  arma::mat dense_mat = arma::conv_to<arma::mat>::from(mat);
-  arma::mat mask_mat  = arma::conv_to<arma::mat>::from(spones(mat));
-
-  return std::make_pair(std::move(mask_mat), std::move(dense_mat));
-}
-
-std::pair<arma::mat,arma::mat> cpp_rG0_v1( const int dim,
-                                           const double sparsity,
-                                           const double c,
-                                           double sd_offdiag,
-                                           double sd_diag ) {
-  arma::mat ret1 = arma::eye( dim, dim ) ;
-  arma::mat ret2( dim, dim, arma::fill::zeros);
-  ret2.diag() = arma::randn<arma::vec>(dim, arma::distr_param(0.0, sd_diag));
-
-  // MAPPING CONSTANT
-  const int M = dim * (dim - 1) / 2;
-  const double disc  = 2.0 * dim - 1.0;
-  const double disc2 = disc*disc;
-
-  // Matrix Order
-  arma::uvec perm = arma::randperm<arma::uvec>(M) ;
-  const double a = ( 1-sparsity ) / c ;
-  const double b = (   sparsity ) / c ;
-
-  arma::vec u_t(2);
-  int d1, d2, k, i, j;
-  double pi_t, off_before;
-
-  for (int pos = 0; pos < M; ++pos) {
-    k = static_cast<int>( perm(pos)+1 ) ;
-    i = static_cast<int>( std::ceil( (disc - std::sqrt(disc2 - 8.0*k)) / 2.0 ) ) - 1;
-    off_before  = (i * (2.0*dim-i + 1))/2.0;
-    j = dim-i- static_cast<int>(k-off_before);
-
-    pi_t = r_4beta(a, b, 0.0, 1.0);
-    u_t  = arma::randu(2) ;
-    d1 = ( pi_t > u_t(0)) ? 0 : 1 ;
-    d2 = ( pi_t > u_t(1)) ? 0 : 1 ;
-    ret1(j,i) = d1 ;
-    ret1(i,j) = d2 ;
-    ret2(j,i) = d1 * arma::randn<double>( arma::distr_param(0.0, sd_offdiag));
-    ret2(i,j) = d2 * arma::randn<double>( arma::distr_param(0.0, sd_offdiag));
-  }
-  return std::make_pair(ret1, ret2);
-}
-
-
-std::tuple<arma::mat, arma::mat, arma::mat> cpp_rG0_v2( const int dim,
-                                             const arma::colvec & Qx,
-                                             const double c,
-                                             double sd_offdiag,
-                                             double sd_diag ) {
-  arma::mat ret1 = arma::eye( dim, dim ) ;
-  arma::mat ret2( dim, dim, arma::fill::zeros);
-  arma::mat ret3( dim, dim, arma::fill::zeros);
-
-  ret2.diag() = arma::randn<arma::vec>(dim, arma::distr_param(0.0, sd_diag));
-
-  // MAPPING CONSTANT
-  const int       M  = dim * (dim - 1) / 2;
-  const double disc  = 2.0 *  dim - 1.0;
-  const double disc2 = disc*disc;
-
-  // Matrix Order
-  arma::uvec   perm    = arma::randperm<arma::uvec>(M) ;
-  arma::colvec ordered = arma::regspace( 0, M) ;
-  double EE = RcppArmadillo::sample(ordered, 1, true, Qx)(0) ;
-
-  const double a = .5 / c ;
-  const double b = .5 / c ;
-
-  arma::vec u_t(2);
-  int d1, d2, k, i, j;
-  double pi_t, off_before;
-
-  for (int pos = 0; pos < EE; ++pos) {
-    k = static_cast<int>( perm(pos)+1 ) ;
-    i = static_cast<int>( std::ceil( (disc - std::sqrt(disc2 - 8.0*k)) / 2.0 ) ) - 1;
-    off_before  = (i * (2.0*dim-i + 1))/2.0;
-    j = dim-i- static_cast<int>(k-off_before);
-
-    ret3(j,i) = 1 ;
-    ret3(i,j) = 1 ;
-
-    pi_t = r_4beta(a, b, 0.0, 1.0);
-
-    u_t  = arma::randu(2) ;
-
-    d1 = ( pi_t > u_t(0) ) ? 0 : 1 ;
-    d2 = ( pi_t > u_t(1) ) ? 0 : 1 ;
-
-    ret1(j,i) = d1 ;
-    ret1(i,j) = d2 ;
-
-    ret2(j,i) = d1 * arma::randn<double>( arma::distr_param(0.0, sd_offdiag));
-    ret2(i,j) = d2 * arma::randn<double>( arma::distr_param(0.0, sd_offdiag));
-  }
-  return std::make_tuple(ret1, ret2, ret3);
-}
-
-std::tuple<arma::mat,  arma::mat,
-           arma::uvec, arma::uvec,
-           std::vector<arma::uvec>> cpp_rG0_v3( const int dim,
-                                                const arma::colvec & Qx,
-                                                double sd_offdiag,
-                                                double sd_diag ) {
-  arma::mat ret1 = arma::eye( dim, dim ) ;
-  arma::mat ret2( dim, dim, arma::fill::zeros);
-  ret2.diag() = arma::randn<arma::vec>(dim, arma::distr_param(0.0, sd_diag));
-
-  const int       M  = dim * (dim - 1) / 2;
-  const double disc  = 2.0 *  dim - 1.0;
-  const double disc2 = disc*disc;
-
-  arma::uvec   perm    = arma::randperm<arma::uvec>(M) ;
-  arma::colvec ordered = arma::regspace( 0, M) ;
-  double EE = RcppArmadillo::sample(ordered, 1, true, Qx)(0) ;
-
-  int  k, i, j;
-
-  std::vector<arma::uvec> Map_for_Ising(dim) ;
-
-  for( int p = 0; p < dim; ++p){
-      arma::uword v = p ;
-      Map_for_Ising[p] = arma::uvec({v});
-  }
-
-  arma::uvec pair ;
-  for (int pos = 0; pos < EE; ++pos) {
-    pair = index_to_pair( perm(pos) ) ;
-    i = pair(0) ;
-    j = pair(1) ;
-    push_back_j(Map_for_Ising[i], j );
-    push_back_j(Map_for_Ising[j], i );
-    ret1(j,i) = 1 ;
-    ret1(i,j) = 1 ;
-
-    ret2(j,i) = arma::randn<double>( arma::distr_param(0.0, sd_offdiag));
-    ret2(i,j) = arma::randn<double>( arma::distr_param(0.0, sd_offdiag));
-  }
-
-  arma::uvec ones;
-  arma::uvec zeros;
-
-  if( EE == 0){
-    ones = {};
-    zeros = perm ;
-  }else if(EE == M){
-    zeros = {};
-    ones = perm ;
-  }else{
-    ones   = perm.subvec(0, EE-1);
-    zeros  = perm.subvec(EE, M-1);
-  }
-  return std::make_tuple(ret1, ret2, ones, zeros, Map_for_Ising) ;
-}
+// std::pair<arma::mat, arma::mat> cpp_rG0_v0(int dim,
+//                                            const double off_diagonal_sparsity,
+//                                            const double sd_offdiag,
+//                                            const double sd_diag ) {
+//   arma::sp_mat mat = arma::sprandn<arma::sp_mat>(dim, dim, off_diagonal_sparsity) * sd_offdiag;
+//   mat.diag()       = arma::randn(dim) * sd_diag;
+//
+//   arma::mat dense_mat = arma::conv_to<arma::mat>::from(mat);
+//   arma::mat mask_mat  = arma::conv_to<arma::mat>::from(spones(mat));
+//
+//   return std::make_pair(std::move(mask_mat), std::move(dense_mat));
+// }
+//
+// std::pair<arma::mat,arma::mat> cpp_rG0_v1( const int dim,
+//                                            const double sparsity,
+//                                            const double c,
+//                                            double sd_offdiag,
+//                                            double sd_diag ) {
+//   arma::mat ret1 = arma::eye( dim, dim ) ;
+//   arma::mat ret2( dim, dim, arma::fill::zeros);
+//   ret2.diag() = arma::randn<arma::vec>(dim, arma::distr_param(0.0, sd_diag));
+//
+//   // MAPPING CONSTANT
+//   const int M = dim * (dim - 1) / 2;
+//   const double disc  = 2.0 * dim - 1.0;
+//   const double disc2 = disc*disc;
+//
+//   // Matrix Order
+//   arma::uvec perm = arma::randperm<arma::uvec>(M) ;
+//   const double a = ( 1-sparsity ) / c ;
+//   const double b = (   sparsity ) / c ;
+//
+//   arma::vec u_t(2);
+//   int d1, d2, k, i, j;
+//   double pi_t, off_before;
+//
+//   for (int pos = 0; pos < M; ++pos) {
+//     k = static_cast<int>( perm(pos)+1 ) ;
+//     i = static_cast<int>( std::ceil( (disc - std::sqrt(disc2 - 8.0*k)) / 2.0 ) ) - 1;
+//     off_before  = (i * (2.0*dim-i + 1))/2.0;
+//     j = dim-i- static_cast<int>(k-off_before);
+//
+//     pi_t = r_4beta(a, b, 0.0, 1.0);
+//     u_t  = arma::randu(2) ;
+//     d1 = ( pi_t > u_t(0)) ? 0 : 1 ;
+//     d2 = ( pi_t > u_t(1)) ? 0 : 1 ;
+//     ret1(j,i) = d1 ;
+//     ret1(i,j) = d2 ;
+//     ret2(j,i) = d1 * arma::randn<double>( arma::distr_param(0.0, sd_offdiag));
+//     ret2(i,j) = d2 * arma::randn<double>( arma::distr_param(0.0, sd_offdiag));
+//   }
+//   return std::make_pair(ret1, ret2);
+// }
+//
+//
+// std::tuple<arma::mat, arma::mat, arma::mat> cpp_rG0_v2( const int dim,
+//                                              const arma::colvec & Qx,
+//                                              const double c,
+//                                              double sd_offdiag,
+//                                              double sd_diag ) {
+//   arma::mat ret1 = arma::eye( dim, dim ) ;
+//   arma::mat ret2( dim, dim, arma::fill::zeros);
+//   arma::mat ret3( dim, dim, arma::fill::zeros);
+//
+//   ret2.diag() = arma::randn<arma::vec>(dim, arma::distr_param(0.0, sd_diag));
+//
+//   // MAPPING CONSTANT
+//   const int       M  = dim * (dim - 1) / 2;
+//   const double disc  = 2.0 *  dim - 1.0;
+//   const double disc2 = disc*disc;
+//
+//   // Matrix Order
+//   arma::uvec   perm    = arma::randperm<arma::uvec>(M) ;
+//   arma::colvec ordered = arma::regspace( 0, M) ;
+//   double EE = RcppArmadillo::sample(ordered, 1, true, Qx)(0) ;
+//
+//   const double a = .5 / c ;
+//   const double b = .5 / c ;
+//
+//   arma::vec u_t(2);
+//   int d1, d2, k, i, j;
+//   double pi_t, off_before;
+//
+//   for (int pos = 0; pos < EE; ++pos) {
+//     k = static_cast<int>( perm(pos)+1 ) ;
+//     i = static_cast<int>( std::ceil( (disc - std::sqrt(disc2 - 8.0*k)) / 2.0 ) ) - 1;
+//     off_before  = (i * (2.0*dim-i + 1))/2.0;
+//     j = dim-i- static_cast<int>(k-off_before);
+//
+//     ret3(j,i) = 1 ;
+//     ret3(i,j) = 1 ;
+//
+//     pi_t = r_4beta(a, b, 0.0, 1.0);
+//
+//     u_t  = arma::randu(2) ;
+//
+//     d1 = ( pi_t > u_t(0) ) ? 0 : 1 ;
+//     d2 = ( pi_t > u_t(1) ) ? 0 : 1 ;
+//
+//     ret1(j,i) = d1 ;
+//     ret1(i,j) = d2 ;
+//
+//     ret2(j,i) = d1 * arma::randn<double>( arma::distr_param(0.0, sd_offdiag));
+//     ret2(i,j) = d2 * arma::randn<double>( arma::distr_param(0.0, sd_offdiag));
+//   }
+//   return std::make_tuple(ret1, ret2, ret3);
+// }
+//
+// std::tuple<arma::mat,  arma::mat,
+//            arma::uvec, arma::uvec,
+//            std::vector<arma::uvec>> cpp_rG0_v3( const int dim,
+//                                                 const arma::colvec & Qx,
+//                                                 double sd_offdiag,
+//                                                 double sd_diag ) {
+//   arma::mat ret1 = arma::eye( dim, dim ) ;
+//   arma::mat ret2( dim, dim, arma::fill::zeros);
+//   ret2.diag() = arma::randn<arma::vec>(dim, arma::distr_param(0.0, sd_diag));
+//
+//   const int       M  = dim * (dim - 1) / 2;
+//   const double disc  = 2.0 *  dim - 1.0;
+//   const double disc2 = disc*disc;
+//
+//   arma::uvec   perm    = arma::randperm<arma::uvec>(M) ;
+//   arma::colvec ordered = arma::regspace( 0, M) ;
+//   double EE = RcppArmadillo::sample(ordered, 1, true, Qx)(0) ;
+//
+//   int  k, i, j;
+//
+//   std::vector<arma::uvec> Map_for_Ising(dim) ;
+//
+//   for( int p = 0; p < dim; ++p){
+//       arma::uword v = p ;
+//       Map_for_Ising[p] = arma::uvec({v});
+//   }
+//
+//   arma::uvec pair ;
+//   for (int pos = 0; pos < EE; ++pos) {
+//     pair = index_to_pair( perm(pos) ) ;
+//     i = pair(0) ;
+//     j = pair(1) ;
+//     push_back_j(Map_for_Ising[i], j );
+//     push_back_j(Map_for_Ising[j], i );
+//     ret1(j,i) = 1 ;
+//     ret1(i,j) = 1 ;
+//
+//     ret2(j,i) = arma::randn<double>( arma::distr_param(0.0, sd_offdiag));
+//     ret2(i,j) = arma::randn<double>( arma::distr_param(0.0, sd_offdiag));
+//   }
+//
+//   arma::uvec ones;
+//   arma::uvec zeros;
+//
+//   if( EE == 0){
+//     ones = {};
+//     zeros = perm ;
+//   }else if(EE == M){
+//     zeros = {};
+//     ones = perm ;
+//   }else{
+//     ones   = perm.subvec(0, EE-1);
+//     zeros  = perm.subvec(EE, M-1);
+//   }
+//   return std::make_tuple(ret1, ret2, ones, zeros, Map_for_Ising) ;
+// }
 

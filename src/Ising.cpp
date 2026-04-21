@@ -15,53 +15,97 @@ using namespace Rcpp ;
 double cpp_pseudo_ll_Omega( const arma::mat & Y,
                             const arma::mat & Omega ) {
   const arma::rowvec diag_Omega = Omega.diag().t();
-  arma::mat Phi = Y * Omega.t();
-  Phi            -= Y.each_row() % diag_Omega;
+
+  arma::mat Phi = Y * Omega;
+  Phi -= Y.each_row() % diag_Omega;
   Phi.each_row() += diag_Omega;
   return arma::accu( Y % Phi - arma::log1p(arma::exp(Phi)) );
 }
+
 
 // [[Rcpp::export]]
 double cpp_pseudo_ll_alpha_beta( const arma::mat    & Y,
                                  const arma::colvec & alpha,
                                  const arma::mat    & Beta ) {
-
-  arma::mat Phi = Y * Beta.t();
+  arma::mat Phi = Y * Beta;
   Phi.each_row() += alpha.t();
-
   return arma::accu( Y % Phi - arma::log1p(arma::exp(Phi)) );
 }
-
 
 // [[Rcpp::export]]
 double cpp_ll_ratio_global_flip(
     const arma::mat & YY,
     const arma::mat & Beta, const arma::colvec & alpha,
-    const arma::uword n1, const arma::uvec   & mapping_n1,
-    const arma::uword n2, const arma::uvec   & mapping_n2,
-    const double beta_new_n1n2, const double beta_new_n2n1 ) {
+    const arma::uword n1,   const arma::uvec & mapping_n1, const double delta_beta_n2_reg_n1,
+    const arma::uword n2,   const arma::uvec & mapping_n2, const double delta_beta_n1_reg_n2 ) {
 
   const arma::uvec pos_n1 = {n1};
   const arma::uvec pos_n2 = {n2};
-
   const arma::colvec psi_n1_old = YY.cols(mapping_n1) * Beta.submat(mapping_n1, pos_n1) + alpha(n1);
   const arma::colvec psi_n2_old = YY.cols(mapping_n2) * Beta.submat(mapping_n2, pos_n2) + alpha(n2);
-
-  const arma::colvec psi_n1_new = psi_n1_old + beta_new_n1n2 * YY.col(n2);
-  const arma::colvec psi_n2_new = psi_n2_old + beta_new_n2n1 * YY.col(n1);
-
+  const arma::colvec psi_n1_new = psi_n1_old + delta_beta_n2_reg_n1 * YY.col(n2);
+  const arma::colvec psi_n2_new = psi_n2_old + delta_beta_n1_reg_n2 * YY.col(n1);
 
   return arma::sum( YY.col(n1) % (psi_n1_new - psi_n1_old)
                       - arma::log1p(arma::exp(psi_n1_new))
                       + arma::log1p(arma::exp(psi_n1_old)) )
-       + arma::sum( YY.col(n2) % (psi_n2_new - psi_n2_old)
+                      + arma::sum( YY.col(n2) % (psi_n2_new - psi_n2_old)
                       - arma::log1p(arma::exp(psi_n2_new))
                       + arma::log1p(arma::exp(psi_n2_old)) );
 }
 
-
 // [[Rcpp::export]]
 double cpp_ll_ratio_global_swap(
+    const arma::mat    & YY, const arma::mat    & Beta, const arma::colvec & alpha,
+    const arma::uword n1, const arma::uvec & mapping_n1, const double delta_b_reg_n1,
+    const arma::uword n2, const arma::uvec & mapping_n2, const double delta_b_reg_n2,
+    const arma::uword n3, const arma::uvec & mapping_n3, const double delta_b_reg_n3,
+    const arma::uword n4, const arma::uvec & mapping_n4, const double delta_b_reg_n4 ) {
+
+  const arma::uvec pos_n1 = {n1};
+  const arma::uvec pos_n2 = {n2};
+  const arma::uvec pos_n3 = {n3};
+  const arma::uvec pos_n4 = {n4};
+
+  const arma::colvec psi_n1_old = YY.cols(mapping_n1) * Beta.submat(mapping_n1, pos_n1) + alpha(n1);
+  const arma::colvec psi_n2_old = YY.cols(mapping_n2) * Beta.submat(mapping_n2, pos_n2) + alpha(n2);
+
+  arma::colvec psi_n1_new = psi_n1_old + delta_b_reg_n1 * YY.col(n2);
+  arma::colvec psi_n2_new = psi_n2_old + delta_b_reg_n2 * YY.col(n1);
+
+  if      (n1 == n3) psi_n1_new += delta_b_reg_n3 * YY.col(n4);
+  else if (n1 == n4) psi_n1_new += delta_b_reg_n4 * YY.col(n3);
+
+  if      (n2 == n3) psi_n2_new += delta_b_reg_n3 * YY.col(n4);
+  else if (n2 == n4) psi_n2_new += delta_b_reg_n4 * YY.col(n3);
+
+  double log_ratio = arma::sum( YY.col(n1) % (psi_n1_new - psi_n1_old)
+                 - arma::log1p(arma::exp(psi_n1_new))
+                 + arma::log1p(arma::exp(psi_n1_old)) )
+                 + arma::sum( YY.col(n2) % (psi_n2_new - psi_n2_old)
+                 - arma::log1p(arma::exp(psi_n2_new))
+                 + arma::log1p(arma::exp(psi_n2_old)) );
+
+  if ( (n3 != n1) && (n3 != n2) ) {
+    const arma::colvec psi_n3_old = YY.cols(mapping_n3) * Beta.submat(mapping_n3, pos_n3) + alpha(n3);
+    const arma::colvec psi_n3_new = psi_n3_old + delta_b_reg_n3 * YY.col(n4);
+    log_ratio += arma::sum( YY.col(n3) % (psi_n3_new - psi_n3_old)
+               - arma::log1p(arma::exp(psi_n3_new))
+               + arma::log1p(arma::exp(psi_n3_old)) );
+  }
+  if ( (n4 != n1) && (n4 != n2) ) {
+    const arma::colvec psi_n4_old = YY.cols(mapping_n4) * Beta.submat(mapping_n4, pos_n4) + alpha(n4);
+    const arma::colvec psi_n4_new = psi_n4_old + delta_b_reg_n4 * YY.col(n3);
+    log_ratio += arma::sum( YY.col(n4) % (psi_n4_new - psi_n4_old)
+               - arma::log1p(arma::exp(psi_n4_new))
+               + arma::log1p(arma::exp(psi_n4_old)) ) ;
+  }
+  return log_ratio;
+}
+
+
+// [[Rcpp::export]]
+double cpp_ll_ratio_global_swap_old(
     const arma::mat  & Y,
     const arma::mat  & Omega,
     const arma::uvec & pair01,

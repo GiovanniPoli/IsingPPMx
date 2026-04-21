@@ -95,3 +95,21 @@ Rcpp::List test_update_alpha_and_beta(
       Rcpp::Named("Beta")    = BETA,
       Rcpp::Named("alpha")   = alpha);
 }
+
+//
+
+// [[Rcpp::export]]
+arma::uvec index_to_pair_R(int k){
+  std::pair<arma::uword, arma::uword> pair = index_to_pair(k);
+  return {pair.first+1, pair.second+1};
+}
+
+// [[Rcpp::export]]
+int pair_to_index_R(int j, int k){
+  if( (j < 0) | (k < 0) ) Rcpp::stop("Indces must be greater then 0.");
+  if( j == k ) Rcpp::stop("Mapping is for off-diagonal elements.");
+  arma::uword ret = pair_to_index(std::min(j,k) -1, std::max(j,k) -1);
+  return int(ret) ;
+}
+
+

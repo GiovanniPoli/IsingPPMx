@@ -16,7 +16,6 @@ int get_console_width() {
   int width = as<int>(getOption("width"));
   return width;
 }
-
 void catProgressBar(int progress, int total, MyTimePoint start_time) {
   int barWidth = get_console_width()-50;
   float ratio = (float)progress / total;
@@ -47,8 +46,6 @@ void catProgressBar(int progress, int total, MyTimePoint start_time) {
   std::cout << std::fixed << std::setprecision(2) << elapsed << unit <<" \r";
   std::cout.flush();
 }
-
-
 void catIter(int progress, int total, MyTimePoint start_time) {
 
   auto       now = myClock::now();
@@ -94,19 +91,16 @@ arma::mat coocorence( const arma::mat& MCMC_clusters ){
   return ret ;
 }
 
-// [[Rcpp::export]]
 arma::uword pair_to_index(arma::uword i, arma::uword j) {
   arma::uword min = std::min(i,j) ;
   arma::uword max = std::max(i,j) ;
   return max *(max - 1) / 2 + min;
 }
 
-// [[Rcpp::export]]
-arma::uvec index_to_pair(int k) {
+std::pair<arma::uword,arma::uword> index_to_pair(int k) {
   arma::uword i = static_cast<unsigned>( std::floor((1 + std::sqrt(1 + 8.0 * k)) / 2.0) );
   arma::uword j = k - i * (i - 1) / 2;
-  arma::uvec pair = {i, j};
-  return pair;
+  return std::make_pair(i,j);
 }
 
 void remove_j(arma::uvec & v, int j) {

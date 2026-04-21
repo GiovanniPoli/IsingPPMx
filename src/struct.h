@@ -75,11 +75,11 @@ struct cluster_parameter {
       v = k ;
       mapping[k] = arma::uvec({v});
     }
-    arma::uvec pair ;
+    std::pair<arma::uword, arma::uword> pair ;
     for (int pos = 0; pos < EE; ++pos) {
       pair = index_to_pair( perm(pos) ) ;
-      i = pair(0) ;
-      j = pair(1) ;
+      i = pair.first ;
+      j = pair.second ;
       push_back_j(mapping[i], j );
       push_back_j(mapping[j], i );
       b0 = arma::randn<double>( arma::distr_param(0.0, sd_offdiag));

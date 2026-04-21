@@ -37,8 +37,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // cpp_ll_ratio_global_flip
-double cpp_ll_ratio_global_flip(const arma::mat& YY, const arma::mat& Beta, const arma::colvec& alpha, const arma::uword n1, const arma::uvec& mapping_n1, const arma::uword n2, const arma::uvec& mapping_n2, const double beta_new_n1n2, const double beta_new_n2n1);
-RcppExport SEXP _IsingPPMx_cpp_ll_ratio_global_flip(SEXP YYSEXP, SEXP BetaSEXP, SEXP alphaSEXP, SEXP n1SEXP, SEXP mapping_n1SEXP, SEXP n2SEXP, SEXP mapping_n2SEXP, SEXP beta_new_n1n2SEXP, SEXP beta_new_n2n1SEXP) {
+double cpp_ll_ratio_global_flip(const arma::mat& YY, const arma::mat& Beta, const arma::colvec& alpha, const arma::uword n1, const arma::uvec& mapping_n1, const double delta_beta_n2_reg_n1, const arma::uword n2, const arma::uvec& mapping_n2, const double delta_beta_n1_reg_n2);
+RcppExport SEXP _IsingPPMx_cpp_ll_ratio_global_flip(SEXP YYSEXP, SEXP BetaSEXP, SEXP alphaSEXP, SEXP n1SEXP, SEXP mapping_n1SEXP, SEXP delta_beta_n2_reg_n1SEXP, SEXP n2SEXP, SEXP mapping_n2SEXP, SEXP delta_beta_n1_reg_n2SEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -47,17 +47,42 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const arma::colvec& >::type alpha(alphaSEXP);
     Rcpp::traits::input_parameter< const arma::uword >::type n1(n1SEXP);
     Rcpp::traits::input_parameter< const arma::uvec& >::type mapping_n1(mapping_n1SEXP);
+    Rcpp::traits::input_parameter< const double >::type delta_beta_n2_reg_n1(delta_beta_n2_reg_n1SEXP);
     Rcpp::traits::input_parameter< const arma::uword >::type n2(n2SEXP);
     Rcpp::traits::input_parameter< const arma::uvec& >::type mapping_n2(mapping_n2SEXP);
-    Rcpp::traits::input_parameter< const double >::type beta_new_n1n2(beta_new_n1n2SEXP);
-    Rcpp::traits::input_parameter< const double >::type beta_new_n2n1(beta_new_n2n1SEXP);
-    rcpp_result_gen = Rcpp::wrap(cpp_ll_ratio_global_flip(YY, Beta, alpha, n1, mapping_n1, n2, mapping_n2, beta_new_n1n2, beta_new_n2n1));
+    Rcpp::traits::input_parameter< const double >::type delta_beta_n1_reg_n2(delta_beta_n1_reg_n2SEXP);
+    rcpp_result_gen = Rcpp::wrap(cpp_ll_ratio_global_flip(YY, Beta, alpha, n1, mapping_n1, delta_beta_n2_reg_n1, n2, mapping_n2, delta_beta_n1_reg_n2));
     return rcpp_result_gen;
 END_RCPP
 }
 // cpp_ll_ratio_global_swap
-double cpp_ll_ratio_global_swap(const arma::mat& Y, const arma::mat& Omega, const arma::uvec& pair01, const arma::uvec& pair23, const double beta_new_pos0, const arma::uvec& indx0, const double beta_new_pos1, const arma::uvec& indx1, const double beta_new_pos2, const arma::uvec& indx2, const double beta_new_pos3, const arma::uvec& indx3);
-RcppExport SEXP _IsingPPMx_cpp_ll_ratio_global_swap(SEXP YSEXP, SEXP OmegaSEXP, SEXP pair01SEXP, SEXP pair23SEXP, SEXP beta_new_pos0SEXP, SEXP indx0SEXP, SEXP beta_new_pos1SEXP, SEXP indx1SEXP, SEXP beta_new_pos2SEXP, SEXP indx2SEXP, SEXP beta_new_pos3SEXP, SEXP indx3SEXP) {
+double cpp_ll_ratio_global_swap(const arma::mat& YY, const arma::mat& Beta, const arma::colvec& alpha, const arma::uword n1, const arma::uvec& mapping_n1, const double delta_b_reg_n1, const arma::uword n2, const arma::uvec& mapping_n2, const double delta_b_reg_n2, const arma::uword n3, const arma::uvec& mapping_n3, const double delta_b_reg_n3, const arma::uword n4, const arma::uvec& mapping_n4, const double delta_b_reg_n4);
+RcppExport SEXP _IsingPPMx_cpp_ll_ratio_global_swap(SEXP YYSEXP, SEXP BetaSEXP, SEXP alphaSEXP, SEXP n1SEXP, SEXP mapping_n1SEXP, SEXP delta_b_reg_n1SEXP, SEXP n2SEXP, SEXP mapping_n2SEXP, SEXP delta_b_reg_n2SEXP, SEXP n3SEXP, SEXP mapping_n3SEXP, SEXP delta_b_reg_n3SEXP, SEXP n4SEXP, SEXP mapping_n4SEXP, SEXP delta_b_reg_n4SEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::mat& >::type YY(YYSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type Beta(BetaSEXP);
+    Rcpp::traits::input_parameter< const arma::colvec& >::type alpha(alphaSEXP);
+    Rcpp::traits::input_parameter< const arma::uword >::type n1(n1SEXP);
+    Rcpp::traits::input_parameter< const arma::uvec& >::type mapping_n1(mapping_n1SEXP);
+    Rcpp::traits::input_parameter< const double >::type delta_b_reg_n1(delta_b_reg_n1SEXP);
+    Rcpp::traits::input_parameter< const arma::uword >::type n2(n2SEXP);
+    Rcpp::traits::input_parameter< const arma::uvec& >::type mapping_n2(mapping_n2SEXP);
+    Rcpp::traits::input_parameter< const double >::type delta_b_reg_n2(delta_b_reg_n2SEXP);
+    Rcpp::traits::input_parameter< const arma::uword >::type n3(n3SEXP);
+    Rcpp::traits::input_parameter< const arma::uvec& >::type mapping_n3(mapping_n3SEXP);
+    Rcpp::traits::input_parameter< const double >::type delta_b_reg_n3(delta_b_reg_n3SEXP);
+    Rcpp::traits::input_parameter< const arma::uword >::type n4(n4SEXP);
+    Rcpp::traits::input_parameter< const arma::uvec& >::type mapping_n4(mapping_n4SEXP);
+    Rcpp::traits::input_parameter< const double >::type delta_b_reg_n4(delta_b_reg_n4SEXP);
+    rcpp_result_gen = Rcpp::wrap(cpp_ll_ratio_global_swap(YY, Beta, alpha, n1, mapping_n1, delta_b_reg_n1, n2, mapping_n2, delta_b_reg_n2, n3, mapping_n3, delta_b_reg_n3, n4, mapping_n4, delta_b_reg_n4));
+    return rcpp_result_gen;
+END_RCPP
+}
+// cpp_ll_ratio_global_swap_old
+double cpp_ll_ratio_global_swap_old(const arma::mat& Y, const arma::mat& Omega, const arma::uvec& pair01, const arma::uvec& pair23, const double beta_new_pos0, const arma::uvec& indx0, const double beta_new_pos1, const arma::uvec& indx1, const double beta_new_pos2, const arma::uvec& indx2, const double beta_new_pos3, const arma::uvec& indx3);
+RcppExport SEXP _IsingPPMx_cpp_ll_ratio_global_swap_old(SEXP YSEXP, SEXP OmegaSEXP, SEXP pair01SEXP, SEXP pair23SEXP, SEXP beta_new_pos0SEXP, SEXP indx0SEXP, SEXP beta_new_pos1SEXP, SEXP indx1SEXP, SEXP beta_new_pos2SEXP, SEXP indx2SEXP, SEXP beta_new_pos3SEXP, SEXP indx3SEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -73,7 +98,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const arma::uvec& >::type indx2(indx2SEXP);
     Rcpp::traits::input_parameter< const double >::type beta_new_pos3(beta_new_pos3SEXP);
     Rcpp::traits::input_parameter< const arma::uvec& >::type indx3(indx3SEXP);
-    rcpp_result_gen = Rcpp::wrap(cpp_ll_ratio_global_swap(Y, Omega, pair01, pair23, beta_new_pos0, indx0, beta_new_pos1, indx1, beta_new_pos2, indx2, beta_new_pos3, indx3));
+    rcpp_result_gen = Rcpp::wrap(cpp_ll_ratio_global_swap_old(Y, Omega, pair01, pair23, beta_new_pos0, indx0, beta_new_pos1, indx1, beta_new_pos2, indx2, beta_new_pos3, indx3));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -205,197 +230,6 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const int >::type burn(burnSEXP);
     Rcpp::traits::input_parameter< const int >::type thinning(thinningSEXP);
     rcpp_result_gen = Rcpp::wrap(qIsing_mcmc(Y, Qx, sd_int, sd_coef, rho, sample, burn, thinning));
-    return rcpp_result_gen;
-END_RCPP
-}
-// qIsing_mcmcaa
-Rcpp::List qIsing_mcmcaa(const arma::mat& Y, const double var_int, const double var_coef, const double par_pi, const int sample, const int burn, const int thinning);
-RcppExport SEXP _IsingPPMx_qIsing_mcmcaa(SEXP YSEXP, SEXP var_intSEXP, SEXP var_coefSEXP, SEXP par_piSEXP, SEXP sampleSEXP, SEXP burnSEXP, SEXP thinningSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const arma::mat& >::type Y(YSEXP);
-    Rcpp::traits::input_parameter< const double >::type var_int(var_intSEXP);
-    Rcpp::traits::input_parameter< const double >::type var_coef(var_coefSEXP);
-    Rcpp::traits::input_parameter< const double >::type par_pi(par_piSEXP);
-    Rcpp::traits::input_parameter< const int >::type sample(sampleSEXP);
-    Rcpp::traits::input_parameter< const int >::type burn(burnSEXP);
-    Rcpp::traits::input_parameter< const int >::type thinning(thinningSEXP);
-    rcpp_result_gen = Rcpp::wrap(qIsing_mcmcaa(Y, var_int, var_coef, par_pi, sample, burn, thinning));
-    return rcpp_result_gen;
-END_RCPP
-}
-// qIsing_PPMx_v0
-Rcpp::List qIsing_PPMx_v0(const arma::mat& Y, const arma::mat& Z, const double& var_int, const double& var_coef, const double& par_pi, const double& M, const double& sigma, const int sample, const int burn, const int thinning, const int C);
-RcppExport SEXP _IsingPPMx_qIsing_PPMx_v0(SEXP YSEXP, SEXP ZSEXP, SEXP var_intSEXP, SEXP var_coefSEXP, SEXP par_piSEXP, SEXP MSEXP, SEXP sigmaSEXP, SEXP sampleSEXP, SEXP burnSEXP, SEXP thinningSEXP, SEXP CSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const arma::mat& >::type Y(YSEXP);
-    Rcpp::traits::input_parameter< const arma::mat& >::type Z(ZSEXP);
-    Rcpp::traits::input_parameter< const double& >::type var_int(var_intSEXP);
-    Rcpp::traits::input_parameter< const double& >::type var_coef(var_coefSEXP);
-    Rcpp::traits::input_parameter< const double& >::type par_pi(par_piSEXP);
-    Rcpp::traits::input_parameter< const double& >::type M(MSEXP);
-    Rcpp::traits::input_parameter< const double& >::type sigma(sigmaSEXP);
-    Rcpp::traits::input_parameter< const int >::type sample(sampleSEXP);
-    Rcpp::traits::input_parameter< const int >::type burn(burnSEXP);
-    Rcpp::traits::input_parameter< const int >::type thinning(thinningSEXP);
-    Rcpp::traits::input_parameter< const int >::type C(CSEXP);
-    rcpp_result_gen = Rcpp::wrap(qIsing_PPMx_v0(Y, Z, var_int, var_coef, par_pi, M, sigma, sample, burn, thinning, C));
-    return rcpp_result_gen;
-END_RCPP
-}
-// qIsing_v1
-Rcpp::List qIsing_v1(const arma::mat& Y, const double var_int, const double var_coef, const double par_pi, const double c, const int sample, const int burn, const int thinning);
-RcppExport SEXP _IsingPPMx_qIsing_v1(SEXP YSEXP, SEXP var_intSEXP, SEXP var_coefSEXP, SEXP par_piSEXP, SEXP cSEXP, SEXP sampleSEXP, SEXP burnSEXP, SEXP thinningSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const arma::mat& >::type Y(YSEXP);
-    Rcpp::traits::input_parameter< const double >::type var_int(var_intSEXP);
-    Rcpp::traits::input_parameter< const double >::type var_coef(var_coefSEXP);
-    Rcpp::traits::input_parameter< const double >::type par_pi(par_piSEXP);
-    Rcpp::traits::input_parameter< const double >::type c(cSEXP);
-    Rcpp::traits::input_parameter< const int >::type sample(sampleSEXP);
-    Rcpp::traits::input_parameter< const int >::type burn(burnSEXP);
-    Rcpp::traits::input_parameter< const int >::type thinning(thinningSEXP);
-    rcpp_result_gen = Rcpp::wrap(qIsing_v1(Y, var_int, var_coef, par_pi, c, sample, burn, thinning));
-    return rcpp_result_gen;
-END_RCPP
-}
-// qIsing_PPMx_v1
-Rcpp::List qIsing_PPMx_v1(const arma::mat& Y, const arma::mat& Z, const double& var_int, const double& var_coef, const double& par_pi, const double& c, const double& M, const double& sigma, const int sample, const int burn, const int thinning, const int C);
-RcppExport SEXP _IsingPPMx_qIsing_PPMx_v1(SEXP YSEXP, SEXP ZSEXP, SEXP var_intSEXP, SEXP var_coefSEXP, SEXP par_piSEXP, SEXP cSEXP, SEXP MSEXP, SEXP sigmaSEXP, SEXP sampleSEXP, SEXP burnSEXP, SEXP thinningSEXP, SEXP CSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const arma::mat& >::type Y(YSEXP);
-    Rcpp::traits::input_parameter< const arma::mat& >::type Z(ZSEXP);
-    Rcpp::traits::input_parameter< const double& >::type var_int(var_intSEXP);
-    Rcpp::traits::input_parameter< const double& >::type var_coef(var_coefSEXP);
-    Rcpp::traits::input_parameter< const double& >::type par_pi(par_piSEXP);
-    Rcpp::traits::input_parameter< const double& >::type c(cSEXP);
-    Rcpp::traits::input_parameter< const double& >::type M(MSEXP);
-    Rcpp::traits::input_parameter< const double& >::type sigma(sigmaSEXP);
-    Rcpp::traits::input_parameter< const int >::type sample(sampleSEXP);
-    Rcpp::traits::input_parameter< const int >::type burn(burnSEXP);
-    Rcpp::traits::input_parameter< const int >::type thinning(thinningSEXP);
-    Rcpp::traits::input_parameter< const int >::type C(CSEXP);
-    rcpp_result_gen = Rcpp::wrap(qIsing_PPMx_v1(Y, Z, var_int, var_coef, par_pi, c, M, sigma, sample, burn, thinning, C));
-    return rcpp_result_gen;
-END_RCPP
-}
-// qIsing_PPMx_v2
-Rcpp::List qIsing_PPMx_v2(const arma::mat& Y, const arma::mat& Z, const double& var_int, const double& var_coef, const arma::colvec& Qx, const double& c, const double& M, const double& sigma, const int sample, const int burn, const int thinning, const int C);
-RcppExport SEXP _IsingPPMx_qIsing_PPMx_v2(SEXP YSEXP, SEXP ZSEXP, SEXP var_intSEXP, SEXP var_coefSEXP, SEXP QxSEXP, SEXP cSEXP, SEXP MSEXP, SEXP sigmaSEXP, SEXP sampleSEXP, SEXP burnSEXP, SEXP thinningSEXP, SEXP CSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const arma::mat& >::type Y(YSEXP);
-    Rcpp::traits::input_parameter< const arma::mat& >::type Z(ZSEXP);
-    Rcpp::traits::input_parameter< const double& >::type var_int(var_intSEXP);
-    Rcpp::traits::input_parameter< const double& >::type var_coef(var_coefSEXP);
-    Rcpp::traits::input_parameter< const arma::colvec& >::type Qx(QxSEXP);
-    Rcpp::traits::input_parameter< const double& >::type c(cSEXP);
-    Rcpp::traits::input_parameter< const double& >::type M(MSEXP);
-    Rcpp::traits::input_parameter< const double& >::type sigma(sigmaSEXP);
-    Rcpp::traits::input_parameter< const int >::type sample(sampleSEXP);
-    Rcpp::traits::input_parameter< const int >::type burn(burnSEXP);
-    Rcpp::traits::input_parameter< const int >::type thinning(thinningSEXP);
-    Rcpp::traits::input_parameter< const int >::type C(CSEXP);
-    rcpp_result_gen = Rcpp::wrap(qIsing_PPMx_v2(Y, Z, var_int, var_coef, Qx, c, M, sigma, sample, burn, thinning, C));
-    return rcpp_result_gen;
-END_RCPP
-}
-// qIsing_PPMx_v3
-Rcpp::List qIsing_PPMx_v3(const arma::mat& Y, const arma::mat& Z, const arma::colvec& Qx, const double var_int, const double var_coef, const double M, const double sigma, const int sample, const int burn, const int thinning, const int C, const bool verb);
-RcppExport SEXP _IsingPPMx_qIsing_PPMx_v3(SEXP YSEXP, SEXP ZSEXP, SEXP QxSEXP, SEXP var_intSEXP, SEXP var_coefSEXP, SEXP MSEXP, SEXP sigmaSEXP, SEXP sampleSEXP, SEXP burnSEXP, SEXP thinningSEXP, SEXP CSEXP, SEXP verbSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const arma::mat& >::type Y(YSEXP);
-    Rcpp::traits::input_parameter< const arma::mat& >::type Z(ZSEXP);
-    Rcpp::traits::input_parameter< const arma::colvec& >::type Qx(QxSEXP);
-    Rcpp::traits::input_parameter< const double >::type var_int(var_intSEXP);
-    Rcpp::traits::input_parameter< const double >::type var_coef(var_coefSEXP);
-    Rcpp::traits::input_parameter< const double >::type M(MSEXP);
-    Rcpp::traits::input_parameter< const double >::type sigma(sigmaSEXP);
-    Rcpp::traits::input_parameter< const int >::type sample(sampleSEXP);
-    Rcpp::traits::input_parameter< const int >::type burn(burnSEXP);
-    Rcpp::traits::input_parameter< const int >::type thinning(thinningSEXP);
-    Rcpp::traits::input_parameter< const int >::type C(CSEXP);
-    Rcpp::traits::input_parameter< const bool >::type verb(verbSEXP);
-    rcpp_result_gen = Rcpp::wrap(qIsing_PPMx_v3(Y, Z, Qx, var_int, var_coef, M, sigma, sample, burn, thinning, C, verb));
-    return rcpp_result_gen;
-END_RCPP
-}
-// qIsing_v3
-Rcpp::List qIsing_v3(const arma::mat& Y, const arma::colvec& Qx, const double var_int, const double var_coef, const int sample, const int burn, const int thinning, const int C);
-RcppExport SEXP _IsingPPMx_qIsing_v3(SEXP YSEXP, SEXP QxSEXP, SEXP var_intSEXP, SEXP var_coefSEXP, SEXP sampleSEXP, SEXP burnSEXP, SEXP thinningSEXP, SEXP CSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const arma::mat& >::type Y(YSEXP);
-    Rcpp::traits::input_parameter< const arma::colvec& >::type Qx(QxSEXP);
-    Rcpp::traits::input_parameter< const double >::type var_int(var_intSEXP);
-    Rcpp::traits::input_parameter< const double >::type var_coef(var_coefSEXP);
-    Rcpp::traits::input_parameter< const int >::type sample(sampleSEXP);
-    Rcpp::traits::input_parameter< const int >::type burn(burnSEXP);
-    Rcpp::traits::input_parameter< const int >::type thinning(thinningSEXP);
-    Rcpp::traits::input_parameter< const int >::type C(CSEXP);
-    rcpp_result_gen = Rcpp::wrap(qIsing_v3(Y, Qx, var_int, var_coef, sample, burn, thinning, C));
-    return rcpp_result_gen;
-END_RCPP
-}
-// MCMC
-double MCMC(bool useA);
-RcppExport SEXP _IsingPPMx_MCMC(SEXP useASEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< bool >::type useA(useASEXP);
-    rcpp_result_gen = Rcpp::wrap(MCMC(useA));
-    return rcpp_result_gen;
-END_RCPP
-}
-// qIsing_PPMx_v5
-Rcpp::List qIsing_PPMx_v5(const arma::mat& Y, const arma::colvec& predefined_groups, const arma::mat& Z, const arma::colvec& Qx, const double var_int, const double var_coef, const double M, const double sigma, const int sample, const int burn, const int thinning, const int C);
-RcppExport SEXP _IsingPPMx_qIsing_PPMx_v5(SEXP YSEXP, SEXP predefined_groupsSEXP, SEXP ZSEXP, SEXP QxSEXP, SEXP var_intSEXP, SEXP var_coefSEXP, SEXP MSEXP, SEXP sigmaSEXP, SEXP sampleSEXP, SEXP burnSEXP, SEXP thinningSEXP, SEXP CSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const arma::mat& >::type Y(YSEXP);
-    Rcpp::traits::input_parameter< const arma::colvec& >::type predefined_groups(predefined_groupsSEXP);
-    Rcpp::traits::input_parameter< const arma::mat& >::type Z(ZSEXP);
-    Rcpp::traits::input_parameter< const arma::colvec& >::type Qx(QxSEXP);
-    Rcpp::traits::input_parameter< const double >::type var_int(var_intSEXP);
-    Rcpp::traits::input_parameter< const double >::type var_coef(var_coefSEXP);
-    Rcpp::traits::input_parameter< const double >::type M(MSEXP);
-    Rcpp::traits::input_parameter< const double >::type sigma(sigmaSEXP);
-    Rcpp::traits::input_parameter< const int >::type sample(sampleSEXP);
-    Rcpp::traits::input_parameter< const int >::type burn(burnSEXP);
-    Rcpp::traits::input_parameter< const int >::type thinning(thinningSEXP);
-    Rcpp::traits::input_parameter< const int >::type C(CSEXP);
-    rcpp_result_gen = Rcpp::wrap(qIsing_PPMx_v5(Y, predefined_groups, Z, Qx, var_int, var_coef, M, sigma, sample, burn, thinning, C));
-    return rcpp_result_gen;
-END_RCPP
-}
-// qIsing_v5
-Rcpp::List qIsing_v5(const arma::mat& Y, const arma::colvec& Qx, const double var_int, const double var_coef, const int sample, const int burn, const int thinning, const int C);
-RcppExport SEXP _IsingPPMx_qIsing_v5(SEXP YSEXP, SEXP QxSEXP, SEXP var_intSEXP, SEXP var_coefSEXP, SEXP sampleSEXP, SEXP burnSEXP, SEXP thinningSEXP, SEXP CSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const arma::mat& >::type Y(YSEXP);
-    Rcpp::traits::input_parameter< const arma::colvec& >::type Qx(QxSEXP);
-    Rcpp::traits::input_parameter< const double >::type var_int(var_intSEXP);
-    Rcpp::traits::input_parameter< const double >::type var_coef(var_coefSEXP);
-    Rcpp::traits::input_parameter< const int >::type sample(sampleSEXP);
-    Rcpp::traits::input_parameter< const int >::type burn(burnSEXP);
-    Rcpp::traits::input_parameter< const int >::type thinning(thinningSEXP);
-    Rcpp::traits::input_parameter< const int >::type C(CSEXP);
-    rcpp_result_gen = Rcpp::wrap(qIsing_v5(Y, Qx, var_int, var_coef, sample, burn, thinning, C));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -557,61 +391,23 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// cpp_update_cluster_v0
-void cpp_update_cluster_v0(arma::uvec& rho, arma::uvec& table, arma::mat& Sx, int& H, arma::cube& BETAS, arma::cube& GAMMAS, arma::cube& B_ext, arma::cube& G_ext, unsigned index, const arma::mat& Y, const arma::mat& Z, const double M, const double sigma, const double c_par, const int C, const double pi_par, const double var_int, const double var_coef);
-RcppExport SEXP _IsingPPMx_cpp_update_cluster_v0(SEXP rhoSEXP, SEXP tableSEXP, SEXP SxSEXP, SEXP HSEXP, SEXP BETASSEXP, SEXP GAMMASSEXP, SEXP B_extSEXP, SEXP G_extSEXP, SEXP indexSEXP, SEXP YSEXP, SEXP ZSEXP, SEXP MSEXP, SEXP sigmaSEXP, SEXP c_parSEXP, SEXP CSEXP, SEXP pi_parSEXP, SEXP var_intSEXP, SEXP var_coefSEXP) {
+// cpp_update_global_SRS_debug
+Rcpp::List cpp_update_global_SRS_debug(const arma::mat& YY, const arma::mat& BETA, const arma::colvec& alpha, const arma::uvec& ones, const arma::uvec& zeros, const std::vector<arma::uvec>& mapping, const arma::colvec& logQx, const double var_slab, const double rho);
+RcppExport SEXP _IsingPPMx_cpp_update_global_SRS_debug(SEXP YYSEXP, SEXP BETASEXP, SEXP alphaSEXP, SEXP onesSEXP, SEXP zerosSEXP, SEXP mappingSEXP, SEXP logQxSEXP, SEXP var_slabSEXP, SEXP rhoSEXP) {
 BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< arma::uvec& >::type rho(rhoSEXP);
-    Rcpp::traits::input_parameter< arma::uvec& >::type table(tableSEXP);
-    Rcpp::traits::input_parameter< arma::mat& >::type Sx(SxSEXP);
-    Rcpp::traits::input_parameter< int& >::type H(HSEXP);
-    Rcpp::traits::input_parameter< arma::cube& >::type BETAS(BETASSEXP);
-    Rcpp::traits::input_parameter< arma::cube& >::type GAMMAS(GAMMASSEXP);
-    Rcpp::traits::input_parameter< arma::cube& >::type B_ext(B_extSEXP);
-    Rcpp::traits::input_parameter< arma::cube& >::type G_ext(G_extSEXP);
-    Rcpp::traits::input_parameter< unsigned >::type index(indexSEXP);
-    Rcpp::traits::input_parameter< const arma::mat& >::type Y(YSEXP);
-    Rcpp::traits::input_parameter< const arma::mat& >::type Z(ZSEXP);
-    Rcpp::traits::input_parameter< const double >::type M(MSEXP);
-    Rcpp::traits::input_parameter< const double >::type sigma(sigmaSEXP);
-    Rcpp::traits::input_parameter< const double >::type c_par(c_parSEXP);
-    Rcpp::traits::input_parameter< const int >::type C(CSEXP);
-    Rcpp::traits::input_parameter< const double >::type pi_par(pi_parSEXP);
-    Rcpp::traits::input_parameter< const double >::type var_int(var_intSEXP);
-    Rcpp::traits::input_parameter< const double >::type var_coef(var_coefSEXP);
-    cpp_update_cluster_v0(rho, table, Sx, H, BETAS, GAMMAS, B_ext, G_ext, index, Y, Z, M, sigma, c_par, C, pi_par, var_int, var_coef);
-    return R_NilValue;
-END_RCPP
-}
-// cpp_update_cluster_v2
-void cpp_update_cluster_v2(unsigned index, arma::uvec& rho, arma::uvec& table, arma::mat& Sx, int& H, arma::cube& BETAS, arma::cube& GAMMAS, arma::cube& B_ext, arma::cube& G_ext, arma::cube& Ecube, arma::cube& E_ext, arma::uvec& SN, const arma::mat& Y, const arma::mat& Z, const double M, const double sigma, const arma::colvec& Qx, const double c_par, const double var_int, const double var_coef, const int C);
-RcppExport SEXP _IsingPPMx_cpp_update_cluster_v2(SEXP indexSEXP, SEXP rhoSEXP, SEXP tableSEXP, SEXP SxSEXP, SEXP HSEXP, SEXP BETASSEXP, SEXP GAMMASSEXP, SEXP B_extSEXP, SEXP G_extSEXP, SEXP EcubeSEXP, SEXP E_extSEXP, SEXP SNSEXP, SEXP YSEXP, SEXP ZSEXP, SEXP MSEXP, SEXP sigmaSEXP, SEXP QxSEXP, SEXP c_parSEXP, SEXP var_intSEXP, SEXP var_coefSEXP, SEXP CSEXP) {
-BEGIN_RCPP
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< unsigned >::type index(indexSEXP);
-    Rcpp::traits::input_parameter< arma::uvec& >::type rho(rhoSEXP);
-    Rcpp::traits::input_parameter< arma::uvec& >::type table(tableSEXP);
-    Rcpp::traits::input_parameter< arma::mat& >::type Sx(SxSEXP);
-    Rcpp::traits::input_parameter< int& >::type H(HSEXP);
-    Rcpp::traits::input_parameter< arma::cube& >::type BETAS(BETASSEXP);
-    Rcpp::traits::input_parameter< arma::cube& >::type GAMMAS(GAMMASSEXP);
-    Rcpp::traits::input_parameter< arma::cube& >::type B_ext(B_extSEXP);
-    Rcpp::traits::input_parameter< arma::cube& >::type G_ext(G_extSEXP);
-    Rcpp::traits::input_parameter< arma::cube& >::type Ecube(EcubeSEXP);
-    Rcpp::traits::input_parameter< arma::cube& >::type E_ext(E_extSEXP);
-    Rcpp::traits::input_parameter< arma::uvec& >::type SN(SNSEXP);
-    Rcpp::traits::input_parameter< const arma::mat& >::type Y(YSEXP);
-    Rcpp::traits::input_parameter< const arma::mat& >::type Z(ZSEXP);
-    Rcpp::traits::input_parameter< const double >::type M(MSEXP);
-    Rcpp::traits::input_parameter< const double >::type sigma(sigmaSEXP);
-    Rcpp::traits::input_parameter< const arma::colvec& >::type Qx(QxSEXP);
-    Rcpp::traits::input_parameter< const double >::type c_par(c_parSEXP);
-    Rcpp::traits::input_parameter< const double >::type var_int(var_intSEXP);
-    Rcpp::traits::input_parameter< const double >::type var_coef(var_coefSEXP);
-    Rcpp::traits::input_parameter< const int >::type C(CSEXP);
-    cpp_update_cluster_v2(index, rho, table, Sx, H, BETAS, GAMMAS, B_ext, G_ext, Ecube, E_ext, SN, Y, Z, M, sigma, Qx, c_par, var_int, var_coef, C);
-    return R_NilValue;
+    Rcpp::traits::input_parameter< const arma::mat& >::type YY(YYSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type BETA(BETASEXP);
+    Rcpp::traits::input_parameter< const arma::colvec& >::type alpha(alphaSEXP);
+    Rcpp::traits::input_parameter< const arma::uvec& >::type ones(onesSEXP);
+    Rcpp::traits::input_parameter< const arma::uvec& >::type zeros(zerosSEXP);
+    Rcpp::traits::input_parameter< const std::vector<arma::uvec>& >::type mapping(mappingSEXP);
+    Rcpp::traits::input_parameter< const arma::colvec& >::type logQx(logQxSEXP);
+    Rcpp::traits::input_parameter< const double >::type var_slab(var_slabSEXP);
+    Rcpp::traits::input_parameter< const double >::type rho(rhoSEXP);
+    rcpp_result_gen = Rcpp::wrap(cpp_update_global_SRS_debug(YY, BETA, alpha, ones, zeros, mapping, logQx, var_slab, rho));
+    return rcpp_result_gen;
 END_RCPP
 }
 // coocorence
@@ -622,29 +418,6 @@ BEGIN_RCPP
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const arma::mat& >::type MCMC_clusters(MCMC_clustersSEXP);
     rcpp_result_gen = Rcpp::wrap(coocorence(MCMC_clusters));
-    return rcpp_result_gen;
-END_RCPP
-}
-// pair_to_index
-arma::uword pair_to_index(arma::uword i, arma::uword j);
-RcppExport SEXP _IsingPPMx_pair_to_index(SEXP iSEXP, SEXP jSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< arma::uword >::type i(iSEXP);
-    Rcpp::traits::input_parameter< arma::uword >::type j(jSEXP);
-    rcpp_result_gen = Rcpp::wrap(pair_to_index(i, j));
-    return rcpp_result_gen;
-END_RCPP
-}
-// index_to_pair
-arma::uvec index_to_pair(int k);
-RcppExport SEXP _IsingPPMx_index_to_pair(SEXP kSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< int >::type k(kSEXP);
-    rcpp_result_gen = Rcpp::wrap(index_to_pair(k));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -748,12 +521,36 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// index_to_pair_R
+arma::uvec index_to_pair_R(int k);
+RcppExport SEXP _IsingPPMx_index_to_pair_R(SEXP kSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type k(kSEXP);
+    rcpp_result_gen = Rcpp::wrap(index_to_pair_R(k));
+    return rcpp_result_gen;
+END_RCPP
+}
+// pair_to_index_R
+int pair_to_index_R(int j, int k);
+RcppExport SEXP _IsingPPMx_pair_to_index_R(SEXP jSEXP, SEXP kSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type j(jSEXP);
+    Rcpp::traits::input_parameter< int >::type k(kSEXP);
+    rcpp_result_gen = Rcpp::wrap(pair_to_index_R(j, k));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_IsingPPMx_cpp_pseudo_ll_Omega", (DL_FUNC) &_IsingPPMx_cpp_pseudo_ll_Omega, 2},
     {"_IsingPPMx_cpp_pseudo_ll_alpha_beta", (DL_FUNC) &_IsingPPMx_cpp_pseudo_ll_alpha_beta, 3},
     {"_IsingPPMx_cpp_ll_ratio_global_flip", (DL_FUNC) &_IsingPPMx_cpp_ll_ratio_global_flip, 9},
-    {"_IsingPPMx_cpp_ll_ratio_global_swap", (DL_FUNC) &_IsingPPMx_cpp_ll_ratio_global_swap, 12},
+    {"_IsingPPMx_cpp_ll_ratio_global_swap", (DL_FUNC) &_IsingPPMx_cpp_ll_ratio_global_swap, 15},
+    {"_IsingPPMx_cpp_ll_ratio_global_swap_old", (DL_FUNC) &_IsingPPMx_cpp_ll_ratio_global_swap_old, 12},
     {"_IsingPPMx_Ising_pseudologlikelihood", (DL_FUNC) &_IsingPPMx_Ising_pseudologlikelihood, 2},
     {"_IsingPPMx_node_wise_pseudo_ll", (DL_FUNC) &_IsingPPMx_node_wise_pseudo_ll, 2},
     {"_IsingPPMx_log_likelihood_ratio_add", (DL_FUNC) &_IsingPPMx_log_likelihood_ratio_add, 5},
@@ -762,16 +559,6 @@ static const R_CallMethodDef CallEntries[] = {
     {"_IsingPPMx_log_likelihood_ratio_global_swap", (DL_FUNC) &_IsingPPMx_log_likelihood_ratio_global_swap, 12},
     {"_IsingPPMx_logit_mcmc", (DL_FUNC) &_IsingPPMx_logit_mcmc, 8},
     {"_IsingPPMx_qIsing_mcmc", (DL_FUNC) &_IsingPPMx_qIsing_mcmc, 8},
-    {"_IsingPPMx_qIsing_mcmcaa", (DL_FUNC) &_IsingPPMx_qIsing_mcmcaa, 7},
-    {"_IsingPPMx_qIsing_PPMx_v0", (DL_FUNC) &_IsingPPMx_qIsing_PPMx_v0, 11},
-    {"_IsingPPMx_qIsing_v1", (DL_FUNC) &_IsingPPMx_qIsing_v1, 8},
-    {"_IsingPPMx_qIsing_PPMx_v1", (DL_FUNC) &_IsingPPMx_qIsing_PPMx_v1, 12},
-    {"_IsingPPMx_qIsing_PPMx_v2", (DL_FUNC) &_IsingPPMx_qIsing_PPMx_v2, 12},
-    {"_IsingPPMx_qIsing_PPMx_v3", (DL_FUNC) &_IsingPPMx_qIsing_PPMx_v3, 12},
-    {"_IsingPPMx_qIsing_v3", (DL_FUNC) &_IsingPPMx_qIsing_v3, 8},
-    {"_IsingPPMx_MCMC", (DL_FUNC) &_IsingPPMx_MCMC, 1},
-    {"_IsingPPMx_qIsing_PPMx_v5", (DL_FUNC) &_IsingPPMx_qIsing_PPMx_v5, 12},
-    {"_IsingPPMx_qIsing_v5", (DL_FUNC) &_IsingPPMx_qIsing_v5, 8},
     {"_IsingPPMx_log_beta", (DL_FUNC) &_IsingPPMx_log_beta, 2},
     {"_IsingPPMx_log_gX", (DL_FUNC) &_IsingPPMx_log_gX, 3},
     {"_IsingPPMx_empty_log_gX", (DL_FUNC) &_IsingPPMx_empty_log_gX, 1},
@@ -785,11 +572,8 @@ static const R_CallMethodDef CallEntries[] = {
     {"_IsingPPMx_cpp_polyagamma_h1_devroye", (DL_FUNC) &_IsingPPMx_cpp_polyagamma_h1_devroye, 1},
     {"_IsingPPMx_cpp_sample", (DL_FUNC) &_IsingPPMx_cpp_sample, 3},
     {"_IsingPPMx_cpp_sample_1", (DL_FUNC) &_IsingPPMx_cpp_sample_1, 2},
-    {"_IsingPPMx_cpp_update_cluster_v0", (DL_FUNC) &_IsingPPMx_cpp_update_cluster_v0, 18},
-    {"_IsingPPMx_cpp_update_cluster_v2", (DL_FUNC) &_IsingPPMx_cpp_update_cluster_v2, 21},
+    {"_IsingPPMx_cpp_update_global_SRS_debug", (DL_FUNC) &_IsingPPMx_cpp_update_global_SRS_debug, 9},
     {"_IsingPPMx_coocorence", (DL_FUNC) &_IsingPPMx_coocorence, 1},
-    {"_IsingPPMx_pair_to_index", (DL_FUNC) &_IsingPPMx_pair_to_index, 2},
-    {"_IsingPPMx_index_to_pair", (DL_FUNC) &_IsingPPMx_index_to_pair, 1},
     {"_IsingPPMx_entropy", (DL_FUNC) &_IsingPPMx_entropy, 1},
     {"_IsingPPMx_VI", (DL_FUNC) &_IsingPPMx_VI, 2},
     {"_IsingPPMx_rpg", (DL_FUNC) &_IsingPPMx_rpg, 2},
@@ -798,6 +582,8 @@ static const R_CallMethodDef CallEntries[] = {
     {"_IsingPPMx_cp_empty_wrapper", (DL_FUNC) &_IsingPPMx_cp_empty_wrapper, 1},
     {"_IsingPPMx_cp_prior_wrapper", (DL_FUNC) &_IsingPPMx_cp_prior_wrapper, 5},
     {"_IsingPPMx_test_update_alpha_and_beta", (DL_FUNC) &_IsingPPMx_test_update_alpha_and_beta, 7},
+    {"_IsingPPMx_index_to_pair_R", (DL_FUNC) &_IsingPPMx_index_to_pair_R, 1},
+    {"_IsingPPMx_pair_to_index_R", (DL_FUNC) &_IsingPPMx_pair_to_index_R, 2},
     {NULL, NULL, 0}
 };
 

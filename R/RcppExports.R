@@ -9,12 +9,16 @@ cpp_pseudo_ll_alpha_beta <- function(Y, alpha, Beta) {
     .Call(`_IsingPPMx_cpp_pseudo_ll_alpha_beta`, Y, alpha, Beta)
 }
 
-cpp_ll_ratio_global_flip <- function(YY, Beta, alpha, n1, mapping_n1, n2, mapping_n2, beta_new_n1n2, beta_new_n2n1) {
-    .Call(`_IsingPPMx_cpp_ll_ratio_global_flip`, YY, Beta, alpha, n1, mapping_n1, n2, mapping_n2, beta_new_n1n2, beta_new_n2n1)
+cpp_ll_ratio_global_flip <- function(YY, Beta, alpha, n1, mapping_n1, delta_beta_n2_reg_n1, n2, mapping_n2, delta_beta_n1_reg_n2) {
+    .Call(`_IsingPPMx_cpp_ll_ratio_global_flip`, YY, Beta, alpha, n1, mapping_n1, delta_beta_n2_reg_n1, n2, mapping_n2, delta_beta_n1_reg_n2)
 }
 
-cpp_ll_ratio_global_swap <- function(Y, Omega, pair01, pair23, beta_new_pos0, indx0, beta_new_pos1, indx1, beta_new_pos2, indx2, beta_new_pos3, indx3) {
-    .Call(`_IsingPPMx_cpp_ll_ratio_global_swap`, Y, Omega, pair01, pair23, beta_new_pos0, indx0, beta_new_pos1, indx1, beta_new_pos2, indx2, beta_new_pos3, indx3)
+cpp_ll_ratio_global_swap <- function(YY, Beta, alpha, n1, mapping_n1, delta_b_reg_n1, n2, mapping_n2, delta_b_reg_n2, n3, mapping_n3, delta_b_reg_n3, n4, mapping_n4, delta_b_reg_n4) {
+    .Call(`_IsingPPMx_cpp_ll_ratio_global_swap`, YY, Beta, alpha, n1, mapping_n1, delta_b_reg_n1, n2, mapping_n2, delta_b_reg_n2, n3, mapping_n3, delta_b_reg_n3, n4, mapping_n4, delta_b_reg_n4)
+}
+
+cpp_ll_ratio_global_swap_old <- function(Y, Omega, pair01, pair23, beta_new_pos0, indx0, beta_new_pos1, indx1, beta_new_pos2, indx2, beta_new_pos3, indx3) {
+    .Call(`_IsingPPMx_cpp_ll_ratio_global_swap_old`, Y, Omega, pair01, pair23, beta_new_pos0, indx0, beta_new_pos1, indx1, beta_new_pos2, indx2, beta_new_pos3, indx3)
 }
 
 Ising_pseudologlikelihood <- function(Y, Omega) {
@@ -160,46 +164,6 @@ qIsing_mcmc <- function(Y, Qx, sd_int, sd_coef, rho, sample, burn = 0L, thinning
     .Call(`_IsingPPMx_qIsing_mcmc`, Y, Qx, sd_int, sd_coef, rho, sample, burn, thinning)
 }
 
-qIsing_mcmcaa <- function(Y, var_int, var_coef, par_pi, sample, burn = 0L, thinning = 1L) {
-    .Call(`_IsingPPMx_qIsing_mcmcaa`, Y, var_int, var_coef, par_pi, sample, burn, thinning)
-}
-
-qIsing_PPMx_v0 <- function(Y, Z, var_int, var_coef, par_pi, M, sigma, sample = 1000L, burn = 0L, thinning = 1L, C = 5L) {
-    .Call(`_IsingPPMx_qIsing_PPMx_v0`, Y, Z, var_int, var_coef, par_pi, M, sigma, sample, burn, thinning, C)
-}
-
-qIsing_v1 <- function(Y, var_int, var_coef, par_pi, c, sample, burn = 0L, thinning = 1L) {
-    .Call(`_IsingPPMx_qIsing_v1`, Y, var_int, var_coef, par_pi, c, sample, burn, thinning)
-}
-
-qIsing_PPMx_v1 <- function(Y, Z, var_int, var_coef, par_pi, c, M, sigma, sample = 1000L, burn = 0L, thinning = 1L, C = 5L) {
-    .Call(`_IsingPPMx_qIsing_PPMx_v1`, Y, Z, var_int, var_coef, par_pi, c, M, sigma, sample, burn, thinning, C)
-}
-
-qIsing_PPMx_v2 <- function(Y, Z, var_int, var_coef, Qx, c, M, sigma, sample = 1000L, burn = 0L, thinning = 1L, C = 5L) {
-    .Call(`_IsingPPMx_qIsing_PPMx_v2`, Y, Z, var_int, var_coef, Qx, c, M, sigma, sample, burn, thinning, C)
-}
-
-qIsing_PPMx_v3 <- function(Y, Z, Qx, var_int, var_coef, M, sigma, sample = 1000L, burn = 0L, thinning = 1L, C = 5L, verb = TRUE) {
-    .Call(`_IsingPPMx_qIsing_PPMx_v3`, Y, Z, Qx, var_int, var_coef, M, sigma, sample, burn, thinning, C, verb)
-}
-
-qIsing_v3 <- function(Y, Qx, var_int, var_coef, sample = 1000L, burn = 0L, thinning = 1L, C = 5L) {
-    .Call(`_IsingPPMx_qIsing_v3`, Y, Qx, var_int, var_coef, sample, burn, thinning, C)
-}
-
-MCMC <- function(useA) {
-    .Call(`_IsingPPMx_MCMC`, useA)
-}
-
-qIsing_PPMx_v5 <- function(Y, predefined_groups, Z, Qx, var_int, var_coef, M, sigma, sample = 1000L, burn = 0L, thinning = 1L, C = 5L) {
-    .Call(`_IsingPPMx_qIsing_PPMx_v5`, Y, predefined_groups, Z, Qx, var_int, var_coef, M, sigma, sample, burn, thinning, C)
-}
-
-qIsing_v5 <- function(Y, Qx, var_int, var_coef, sample = 1000L, burn = 0L, thinning = 1L, C = 5L) {
-    .Call(`_IsingPPMx_qIsing_v5`, Y, Qx, var_int, var_coef, sample, burn, thinning, C)
-}
-
 log_beta <- function(x1, x2) {
     .Call(`_IsingPPMx_log_beta`, x1, x2)
 }
@@ -252,24 +216,12 @@ cpp_sample_1 <- function(vec, prob) {
     .Call(`_IsingPPMx_cpp_sample_1`, vec, prob)
 }
 
-cpp_update_cluster_v0 <- function(rho, table, Sx, H, BETAS, GAMMAS, B_ext, G_ext, index, Y, Z, M, sigma, c_par, C, pi_par, var_int, var_coef) {
-    invisible(.Call(`_IsingPPMx_cpp_update_cluster_v0`, rho, table, Sx, H, BETAS, GAMMAS, B_ext, G_ext, index, Y, Z, M, sigma, c_par, C, pi_par, var_int, var_coef))
-}
-
-cpp_update_cluster_v2 <- function(index, rho, table, Sx, H, BETAS, GAMMAS, B_ext, G_ext, Ecube, E_ext, SN, Y, Z, M, sigma, Qx, c_par, var_int, var_coef, C) {
-    invisible(.Call(`_IsingPPMx_cpp_update_cluster_v2`, index, rho, table, Sx, H, BETAS, GAMMAS, B_ext, G_ext, Ecube, E_ext, SN, Y, Z, M, sigma, Qx, c_par, var_int, var_coef, C))
+cpp_update_global_SRS_debug <- function(YY, BETA, alpha, ones, zeros, mapping, logQx, var_slab, rho) {
+    .Call(`_IsingPPMx_cpp_update_global_SRS_debug`, YY, BETA, alpha, ones, zeros, mapping, logQx, var_slab, rho)
 }
 
 coocorence <- function(MCMC_clusters) {
     .Call(`_IsingPPMx_coocorence`, MCMC_clusters)
-}
-
-pair_to_index <- function(i, j) {
-    .Call(`_IsingPPMx_pair_to_index`, i, j)
-}
-
-index_to_pair <- function(k) {
-    .Call(`_IsingPPMx_index_to_pair`, k)
 }
 
 entropy <- function(cl) {
@@ -302,5 +254,13 @@ cp_prior_wrapper <- function(dim, Qx, sd_diag, sd_offdiag, rho) {
 
 test_update_alpha_and_beta <- function(YY, BETA, alpha, mapping_vector, sd_offdiag, sd_diag, rho) {
     .Call(`_IsingPPMx_test_update_alpha_and_beta`, YY, BETA, alpha, mapping_vector, sd_offdiag, sd_diag, rho)
+}
+
+index_to_pair_R <- function(k) {
+    .Call(`_IsingPPMx_index_to_pair_R`, k)
+}
+
+pair_to_index_R <- function(j, k) {
+    .Call(`_IsingPPMx_pair_to_index_R`, j, k)
 }
 

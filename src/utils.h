@@ -17,13 +17,14 @@ void catIter(int progress, int total, MyTimePoint start_time) ;
 void remove_j(arma::uvec & v, int j) ;
 void push_back_j(arma::uvec & v, int j) ;
 
-int  pair_to_index(int i, int j) ;
-arma::uvec index_to_pair(int k) ;
+
+arma::uword pair_to_index(arma::uword i, arma::uword j);
+std::pair<arma::uword,arma::uword> index_to_pair(int k);
+
+
+
 Rcpp::List wrap_unordered_map_as_list(const std::unordered_map<int, arma::uvec> &m);
-std::vector<std::tuple<int, arma::uvec, arma::colvec, arma::uvec>> map_pairs_into_regs(const arma::uvec& pair1,
-                                                                                       const arma::uvec& pair2,
-                                                                                       const arma::colvec& changed_betas,
-                                                                                       const std::vector<arma::uvec> & idx_regs);
+std::vector<std::tuple<int, arma::uvec, arma::colvec, arma::uvec>> map_pairs_into_regs(const arma::uvec& pair1, const arma::uvec& pair2, const arma::colvec& changed_betas, const std::vector<arma::uvec> & idx_regs);
 
 Rcpp::List wrap_nested_unordered_map_of_uvec(const std::unordered_map<int, std::unordered_map<int, arma::uvec>> &nested_map);
 
