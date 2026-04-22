@@ -61,129 +61,16 @@ void cpp_update_beta_and_alpha( const arma::mat  & YY,
   BETA.submat(ones, node) = new_alpha_and_beta ;
 }
 
-
-//// Step for Global SRS
-//void cpp_update_global_SRS(
-//      const arma::mat & YY,
-//      arma::mat & BETA,
-//      const arma::colvec & alpha,
-//      arma::uvec & ones,
-//      arma::uvec & zeros,
-//      std::vector<arma::uvec> & mapping,
-//      const arma::colvec & logQx, const double var_slab, const double rho ) {
-//
-//    const arma::uword N = YY.n_rows;
-//    const arma::uword P = YY.n_cols;
-//    const arma::uword L = P * (P - 1) / 2;
-//    const arma::uword K  = ones.n_elem;
-//    const arma::uword K0 = zeros.n_elem;
-//
-//    double log_alpha = 0;
-//
-//    // Select move type
-//    enum MoveType { FORCED_ADD, FORCED_DELATE, FLIP_ADD, FLIP_DELETE, SWAP };
-//    MoveType move;
-//
-//    if (K == 0) {
-//      move = FORCED_ADD;
-//    } else if (K0 == 0) {
-//      move = FORCED_DELATE;
-//    } else {
-//      const double u = arma::randu<double>();
-//      if (u > 0.5) {
-//        move = SWAP;
-//      } else {
-//        move = ( 2.0 * u * (K + K0) < K0 ) ? FLIP_ADD : FLIP_DELETE;
-//      }
-//    }
-//
-//    if ( move == FORCED_ADD ) {
-//
-//      arma::colvec new_beta = cpp_mvrnormArma1({0,0},{{var_slab, rho},{rho, var_slab}});
-//
-//      int mapped_edge_POS = arma::randi<int>( arma::distr_param(0,K0-1) );
-//      int mapped_edge     = zeros(mapped_edge_POS);
-//      std::pair<arma::uword, arma::uword> edge_to_add = index_to_pair(mapped_edge);
-//
-//      arma::uword n1 = edge_to_add.first;
-//      arma::uword n2 = edge_to_add.second;
-//
-//      log_alpha += cpp_ll_ratio_global_flip(  YY, BETA, alpha,
-//                                              n1, mapping[n1],
-//                                              n2, mapping[n2],
-//                                              new_beta(0),
-//                                              new_beta(1) );
-//      log_alpha += logQx(1) - logQx(0);
-//      log_alpha -= std::log(double(L*2.0)); // ADD was forced
-//
-//    } else if ( move == FORCED_DELATE ) {
-//
-//      int mapped_edge_POS = arma::randi<int>( arma::distr_param(0,K-1) );
-//      arma::uword mapped_edge = ones(mapped_edge_POS);
-//      std::pair<arma::uword, arma::uword> edge_to_add = index_to_pair(mapped_edge);
-//      arma::uword n1 = edge_to_add.first;
-//      arma::uword n2 = edge_to_add.second;
-//      const double b1 = BETA(n1,n2);
-//      const double b2 = BETA(n2,n1);
-//
-//      log_alpha -= cpp_ll_ratio_global_flip(  YY, BETA, alpha,
-//                                              n1, mapping[n1],
-//                                              n2, mapping[n2],
-//                                              b1,b2);
-//      log_alpha += logQx(L-1) - logQx(L);
-//      log_alpha += std::log(double(L*2.0)); // REMOVE was forced
-//    } else if ( move == FLIP_ADD ) {
-//      arma::colvec new_beta = cpp_mvrnormArma1({0,0},{{var_slab, rho},{rho, var_slab}});
-//
-//      int mapped_edge_POS = arma::randi<int>( arma::distr_param(0,K0-1) );
-//      int mapped_edge     = zeros(mapped_edge_POS);
-//      std::pair<arma::uword, arma::uword> edge_to_add = index_to_pair(mapped_edge);
-//
-//      arma::uword n1 = edge_to_add.first;
-//      arma::uword n2 = edge_to_add.second;
-//
-//      log_alpha += cpp_ll_ratio_global_flip(  YY, BETA, alpha,
-//                                              n1, mapping[n1],
-//                                              n2, mapping[n2],
-//                                              new_beta(0),
-//                                              new_beta(1) );
-//      log_alpha += logQx(K+1) - logQx(K);
-//
-//    } else if ( move == FLIP_DELETE ) {
-//      int mapped_edge_POS = arma::randi<int>( arma::distr_param(0,K-1) );
-//      arma::uword mapped_edge = ones(mapped_edge_POS);
-//      std::pair<arma::uword, arma::uword> edge_to_add = index_to_pair(mapped_edge);
-//
-//      arma::uword n1 = edge_to_add.first;
-//      arma::uword n2 = edge_to_add.second;
-//      const double b1 = BETA(n2,n1);
-//      const double b2 = BETA(n1,n2);
-//
-//      log_alpha -= cpp_ll_ratio_global_flip(  YY, BETA, alpha,
-//                                              n1, mapping[n1],
-//                                              n2, mapping[n2],
-//                                              b1,b2);
-//      log_alpha += logQx(K-1) - logQx(K);
-//    } else if ( move == SWAP ){
-//      const arma::mat    S0 = { {var_slab, rho}, {rho, var_slab} };
-//      const arma::colvec B0 = {0,0};
-//
-//    }
-//
-//}
-
-// OLD
 // [[Rcpp::export]]
-Rcpp::List cpp_update_global_SRS_debug(
+void cpp_update_global_SRS_debug(
     const arma::mat               & YY,
-    const arma::mat               & BETA,
+    arma::mat                     & BETA,
     const arma::colvec            & alpha,
-    const arma::uvec              & ones,
-    const arma::uvec              & zeros,
-    const std::vector<arma::uvec> & mapping,
+    arma::uvec                    & ones,
+    arma::uvec                    & zeros,
+    std::vector<arma::uvec>       & mapping,
     const arma::colvec            & logQx,
-    const double var_slab,
-    const double rho ) {
+    const double var_slab, const double rho ) {
 
   const arma::uword N = YY.n_rows;
   const arma::uword P = YY.n_cols;
@@ -192,11 +79,10 @@ Rcpp::List cpp_update_global_SRS_debug(
   const arma::uword K0 = zeros.n_elem;
 
   double       log_alpha = 0.0;
-  arma::mat    BETA_new  = BETA;
-  std::string  move_name;
+  const double log_u     = std::log(arma::randu<double>());
 
-  const arma::mat    Sigma = {{var_slab, rho}, {rho, var_slab}};
-  const arma::colvec zero2 = {0.0, 0.0};
+  const arma::mat    S0 = {{var_slab, rho}, {rho, var_slab}};
+  const arma::colvec b0 = {0.0, 0.0};
 
   enum MoveType { FORCED_ADD, FORCED_DELATE, FLIP_ADD, FLIP_DELETE, SWAP };
   MoveType move;
@@ -213,36 +99,15 @@ Rcpp::List cpp_update_global_SRS_debug(
     }
   }
 
-  int n1 = -1, n2 = -1, n3 = -1, n4 = -1;
-
   if (move == FORCED_ADD) {
-    // move_name = "FORCED_ADD";
-    // TODO
 
-    // =========================================================================
-    // FORCED_DELATE  (to be implemented)
-    // =========================================================================
-  } else if (move == FORCED_DELATE) {
-    // move_name = "FORCED_DELATE";
-    // TODO
-
-    // =========================================================================
-    // FLIP_ADD
-    // Activate one currently inactive edge. Draw (b_reg_n1, b_reg_n2) jointly
-    // from the slab prior and write:
-    //   BETA(n2, n1) = b_reg_n1      (enters psi_n1)
-    //   BETA(n1, n2) = b_reg_n2      (enters psi_n2)
-    // =========================================================================
-  } else if (move == FLIP_ADD) {
-    move_name = "FLIP_ADD";
-
-    const arma::uword pos  = arma::randi<arma::uword>(arma::distr_param(0, K0 - 1));
+    const arma::uword pos  = arma::randi<arma::uword>(arma::distr_param(0, L - 1));
     const arma::uword ell  = zeros(pos);
     const auto        edge = index_to_pair(ell);
-    n1 = static_cast<int>(edge.first);
-    n2 = static_cast<int>(edge.second);
+    arma::uword n1 = edge.first;
+    arma::uword n2 = edge.second;
 
-    const arma::colvec new_beta = cpp_mvrnormArma1(zero2, Sigma);
+    const arma::colvec new_beta = cpp_mvrnormArma1(b0, S0);
     const double b_reg_n1 = new_beta(0);
     const double b_reg_n2 = new_beta(1);
 
@@ -250,17 +115,17 @@ Rcpp::List cpp_update_global_SRS_debug(
                                           n1, mapping[n1], b_reg_n1,
                                           n2, mapping[n2], b_reg_n2);
 
-    BETA_new(n2, n1) = b_reg_n1;
-    BETA_new(n1, n2) = b_reg_n2;
+    if(log_alpha > log_u){
+      // A:
+    }
 
-  } else if (move == FLIP_DELETE) {
-    move_name = "FLIP_DELETE";
+  } else if (move == FORCED_DELATE) {
 
-    const arma::uword pos  = arma::randi<arma::uword>(arma::distr_param(0, K - 1));
+    const arma::uword pos  = arma::randi<arma::uword>(arma::distr_param(0, L - 1));
     const arma::uword ell  = ones(pos);
     const auto        edge = index_to_pair(ell);
-    n1 = static_cast<int>(edge.first);
-    n2 = static_cast<int>(edge.second);
+    arma::uword n1 = edge.first;
+    arma::uword n2 = edge.second;
 
     const double b_reg_n1 = BETA(n2, n1);
     const double b_reg_n2 = BETA(n1, n2);
@@ -268,62 +133,76 @@ Rcpp::List cpp_update_global_SRS_debug(
     log_alpha += cpp_ll_ratio_global_flip(YY, BETA, alpha,
                                           n1, mapping[n1], -b_reg_n1,
                                           n2, mapping[n2], -b_reg_n2);
+    if(log_alpha > log_u){
+      // B:
+    }
+  } else if (move == FLIP_ADD) {
 
-    BETA_new(n2, n1) = 0.0;
-    BETA_new(n1, n2) = 0.0;
+    const arma::uword pos  = arma::randi<arma::uword>(arma::distr_param(0, K0 - 1));
+    const arma::uword ell  = zeros(pos);
+    const auto        edge = index_to_pair(ell);
+    arma::uword n1 = edge.first;
+    arma::uword n2 = edge.second;
+
+    const arma::colvec new_beta = cpp_mvrnormArma1(b0, S0);
+    const double b_reg_n1 = new_beta(0);
+    const double b_reg_n2 = new_beta(1);
+
+    log_alpha += cpp_ll_ratio_global_flip(YY, BETA, alpha,
+                                          n1, mapping[n1], b_reg_n1,
+                                          n2, mapping[n2], b_reg_n2);
+    if(log_alpha > log_u){
+      // C:
+    }
+
+  } else if (move == FLIP_DELETE) {
+
+    const arma::uword pos  = arma::randi<arma::uword>(arma::distr_param(0, K - 1));
+    const arma::uword ell  = ones(pos);
+    const auto        edge = index_to_pair(ell);
+    arma::uword n1 = edge.first;
+    arma::uword n2 = edge.second;
+
+    const double b_reg_n1 = BETA(n2, n1);
+    const double b_reg_n2 = BETA(n1, n2);
+
+    log_alpha += cpp_ll_ratio_global_flip(YY, BETA, alpha,
+                                          n1, mapping[n1], -b_reg_n1,
+                                          n2, mapping[n2], -b_reg_n2);
+    if(log_alpha > log_u){
+      // D:
+    }
 
   } else if (move == SWAP) {
-    move_name = "SWAP";
 
     const arma::uword pos_del = arma::randi<arma::uword>(arma::distr_param(0, K - 1));
     const arma::uword ell_del = ones(pos_del);
     const auto edge_del       = index_to_pair(ell_del);
-    n1 = int(edge_del.first);
-    n2 = int(edge_del.second);
+    arma::uword n1 = edge_del.first;
+    arma::uword n2 = edge_del.second;
 
     const arma::uword pos_add = arma::randi<arma::uword>(arma::distr_param(0, K0 - 1));
     const arma::uword ell_add = zeros(pos_add);
     const auto edge_add       = index_to_pair(ell_add);
-    n3 = int(edge_add.first);
-    n4 = int(edge_add.second);
+    arma::uword n3 = edge_add.first;
+    arma::uword n4 = edge_add.second;
 
-    const double b_reg_n1_old = BETA(n2, n1);   // entra in psi_n1
-    const double b_reg_n2_old = BETA(n1, n2);   // entra in psi_n2
+    const double b_reg_n1_old = BETA(n2, n1);
+    const double b_reg_n2_old = BETA(n1, n2);
 
-    const arma::mat    Sigma = {{var_slab, rho}, {rho, var_slab}};
-    const arma::colvec zero2 = {0.0, 0.0};
-    const arma::colvec new_beta = cpp_mvrnormArma1(zero2, Sigma);
-    const double b_reg_n3_new = new_beta(0);    // entra in psi_n3
-    const double b_reg_n4_new = new_beta(1);    // entra in psi_n4
+    const arma::colvec new_beta = cpp_mvrnormArma1(b0, S0);
+    const double b_reg_n3_new = new_beta(0);
+    const double b_reg_n4_new = new_beta(1);
 
-    // --- delta: new - old ---
-    //   DEL: new = 0, old = b_reg_*_old  ->  delta = -b_reg_*_old
-    //   ADD: new = b_reg_*_new, old = 0  ->  delta = +b_reg_*_new
     log_alpha += cpp_ll_ratio_global_swap(YY, BETA, alpha,
                                           n1, mapping[n1], -b_reg_n1_old,
                                           n2, mapping[n2], -b_reg_n2_old,
-                                          n3, mapping[n3], b_reg_n3_new,
-                                          n4, mapping[n4], b_reg_n4_new);
-
-    // log_alpha += 0;  // prior ratio on K: K non cambia in uno SWAP -> 0
-    // log_alpha += 0;  // proposal ratio: simmetrico -> 0
-
-    // --- applica a BETA_new ---
-    BETA_new(n2, n1) = 0.0;            // elimina arco (n1, n2)
-    BETA_new(n1, n2) = 0.0;
-    BETA_new(n4, n3) = b_reg_n3_new;   // aggiungi arco (n3, n4)
-    BETA_new(n3, n4) = b_reg_n4_new;
+                                          n3, mapping[n3],  b_reg_n3_new,
+                                          n4, mapping[n4],  b_reg_n4_new);
+    if(log_alpha > log_u){
+      // E:
+    }
   }
-  return Rcpp::List::create(
-    Rcpp::Named("n1")        = n1,
-    Rcpp::Named("n2")        = n2,
-    Rcpp::Named("n3")        = n3,
-    Rcpp::Named("n4")        = n4,
-    Rcpp::Named("move")      = move_name,
-    Rcpp::Named("log_alpha") = log_alpha,
-    Rcpp::Named("BETA_old")  = BETA,
-    Rcpp::Named("BETA_new")  = BETA_new
-  );
 }
 // void cpp_update_Omega( const int p,
 //                        const arma::subview_col<double> tilde_gamma,

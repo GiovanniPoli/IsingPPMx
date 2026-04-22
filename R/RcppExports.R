@@ -160,8 +160,8 @@ logit_mcmc <- function(y, X, b0, B0, bstart, sample, burn = 0L, thinning = 1L) {
 #' @seealso \code{\link{bayes_logistic_regression}}, \code{\link{qIsing_PPMx_v5}}
 #'
 #' @export
-qIsing_mcmc <- function(Y, Qx, sd_int, sd_coef, rho, sample, burn = 0L, thinning = 1L) {
-    .Call(`_IsingPPMx_qIsing_mcmc`, Y, Qx, sd_int, sd_coef, rho, sample, burn, thinning)
+qIsing_mcmc <- function(Y, logQx, sd_int, sd_coef, rho, sample, burn = 0L, thinning = 1L) {
+    .Call(`_IsingPPMx_qIsing_mcmc`, Y, logQx, sd_int, sd_coef, rho, sample, burn, thinning)
 }
 
 log_beta <- function(x1, x2) {
@@ -217,7 +217,7 @@ cpp_sample_1 <- function(vec, prob) {
 }
 
 cpp_update_global_SRS_debug <- function(YY, BETA, alpha, ones, zeros, mapping, logQx, var_slab, rho) {
-    .Call(`_IsingPPMx_cpp_update_global_SRS_debug`, YY, BETA, alpha, ones, zeros, mapping, logQx, var_slab, rho)
+    invisible(.Call(`_IsingPPMx_cpp_update_global_SRS_debug`, YY, BETA, alpha, ones, zeros, mapping, logQx, var_slab, rho))
 }
 
 coocorence <- function(MCMC_clusters) {

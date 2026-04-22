@@ -158,6 +158,7 @@ if(FALSE){
 
   ll =  qIsing(YY,Omega = RET$BETA_new, alpha = Thresh) -
         qIsing(YY,Omega = RET$BETA_old, alpha = Thresh)
-
+RET$log_alpha
+ll
 }
 }

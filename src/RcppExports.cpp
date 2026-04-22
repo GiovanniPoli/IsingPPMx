@@ -216,20 +216,20 @@ BEGIN_RCPP
 END_RCPP
 }
 // qIsing_mcmc
-Rcpp::List qIsing_mcmc(const arma::mat& Y, const arma::colvec& Qx, const double sd_int, const double sd_coef, const double rho, const int sample, const int burn, const int thinning);
-RcppExport SEXP _IsingPPMx_qIsing_mcmc(SEXP YSEXP, SEXP QxSEXP, SEXP sd_intSEXP, SEXP sd_coefSEXP, SEXP rhoSEXP, SEXP sampleSEXP, SEXP burnSEXP, SEXP thinningSEXP) {
+Rcpp::List qIsing_mcmc(const arma::mat& Y, const arma::colvec& logQx, const double sd_int, const double sd_coef, const double rho, const int sample, const int burn, const int thinning);
+RcppExport SEXP _IsingPPMx_qIsing_mcmc(SEXP YSEXP, SEXP logQxSEXP, SEXP sd_intSEXP, SEXP sd_coefSEXP, SEXP rhoSEXP, SEXP sampleSEXP, SEXP burnSEXP, SEXP thinningSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const arma::mat& >::type Y(YSEXP);
-    Rcpp::traits::input_parameter< const arma::colvec& >::type Qx(QxSEXP);
+    Rcpp::traits::input_parameter< const arma::colvec& >::type logQx(logQxSEXP);
     Rcpp::traits::input_parameter< const double >::type sd_int(sd_intSEXP);
     Rcpp::traits::input_parameter< const double >::type sd_coef(sd_coefSEXP);
     Rcpp::traits::input_parameter< const double >::type rho(rhoSEXP);
     Rcpp::traits::input_parameter< const int >::type sample(sampleSEXP);
     Rcpp::traits::input_parameter< const int >::type burn(burnSEXP);
     Rcpp::traits::input_parameter< const int >::type thinning(thinningSEXP);
-    rcpp_result_gen = Rcpp::wrap(qIsing_mcmc(Y, Qx, sd_int, sd_coef, rho, sample, burn, thinning));
+    rcpp_result_gen = Rcpp::wrap(qIsing_mcmc(Y, logQx, sd_int, sd_coef, rho, sample, burn, thinning));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -392,22 +392,21 @@ BEGIN_RCPP
 END_RCPP
 }
 // cpp_update_global_SRS_debug
-Rcpp::List cpp_update_global_SRS_debug(const arma::mat& YY, const arma::mat& BETA, const arma::colvec& alpha, const arma::uvec& ones, const arma::uvec& zeros, const std::vector<arma::uvec>& mapping, const arma::colvec& logQx, const double var_slab, const double rho);
+void cpp_update_global_SRS_debug(const arma::mat& YY, arma::mat& BETA, const arma::colvec& alpha, arma::uvec& ones, arma::uvec& zeros, std::vector<arma::uvec>& mapping, const arma::colvec& logQx, const double var_slab, const double rho);
 RcppExport SEXP _IsingPPMx_cpp_update_global_SRS_debug(SEXP YYSEXP, SEXP BETASEXP, SEXP alphaSEXP, SEXP onesSEXP, SEXP zerosSEXP, SEXP mappingSEXP, SEXP logQxSEXP, SEXP var_slabSEXP, SEXP rhoSEXP) {
 BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const arma::mat& >::type YY(YYSEXP);
-    Rcpp::traits::input_parameter< const arma::mat& >::type BETA(BETASEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type BETA(BETASEXP);
     Rcpp::traits::input_parameter< const arma::colvec& >::type alpha(alphaSEXP);
-    Rcpp::traits::input_parameter< const arma::uvec& >::type ones(onesSEXP);
-    Rcpp::traits::input_parameter< const arma::uvec& >::type zeros(zerosSEXP);
-    Rcpp::traits::input_parameter< const std::vector<arma::uvec>& >::type mapping(mappingSEXP);
+    Rcpp::traits::input_parameter< arma::uvec& >::type ones(onesSEXP);
+    Rcpp::traits::input_parameter< arma::uvec& >::type zeros(zerosSEXP);
+    Rcpp::traits::input_parameter< std::vector<arma::uvec>& >::type mapping(mappingSEXP);
     Rcpp::traits::input_parameter< const arma::colvec& >::type logQx(logQxSEXP);
     Rcpp::traits::input_parameter< const double >::type var_slab(var_slabSEXP);
     Rcpp::traits::input_parameter< const double >::type rho(rhoSEXP);
-    rcpp_result_gen = Rcpp::wrap(cpp_update_global_SRS_debug(YY, BETA, alpha, ones, zeros, mapping, logQx, var_slab, rho));
-    return rcpp_result_gen;
+    cpp_update_global_SRS_debug(YY, BETA, alpha, ones, zeros, mapping, logQx, var_slab, rho);
+    return R_NilValue;
 END_RCPP
 }
 // coocorence
